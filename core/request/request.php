@@ -15,6 +15,14 @@ class request
 
     public static $obj = null;
 
+    private function __construct() {
+
+    }
+
+    /**
+     * @return request|null
+     * @throws \Exception
+     */
     public static function analysisRequest()
     {
         if(empty(self::$obj)) {
@@ -37,6 +45,14 @@ class request
             return self::$obj;
         }
 
+    }
+
+    public function getController() {
+        return $this->controller;
+    }
+
+    public function getAction() {
+        return $this->action;
     }
 
     protected function setMethod($type) {
