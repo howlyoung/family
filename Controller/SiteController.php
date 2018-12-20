@@ -13,6 +13,6 @@ class SiteController extends BaseController
 {
 
     public function index() {
-        return 'success';
+        return $this->render('test.html',['title'=>'hello twig','content'=>'yeah']);
     }
 }
