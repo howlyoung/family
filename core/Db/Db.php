@@ -17,18 +17,28 @@ class Db
     public function __construct($config) {
         if($this->checkParms($config)) {
             $this->host = $config['host'];
-            $this->dbname = $config['dbname'];
+//            $this->dbname = $config['dbname'];
             $this->user = $config['user'];
             $this->password = $config['password'];
+            $this->connect();
         }
     }
 
     public function connect() {
-        $this->conn = new \PDO($this->type.':host='.$this->host,$this->user,$this->password,[\PDO::ATTR_PERSISTENT => true]);
+        try{
+            $this->conn = new \PDO($this->host,$this->user,$this->password,[\PDO::ATTR_PERSISTENT => true]);
+        }
+        catch(\PDOException $e) {
+            echo $e->getMessage();
+            exit;
+        }
     }
 
     public function query($sql,$params) {
-
+        $sth = $this->conn->prepare($sql);
+        foreach($params as $k=>$v) {
+            $sth->bindValue($k,$v);
+        }
     }
 
     /**
@@ -63,10 +73,10 @@ class Db
     protected function getConfigField() {
         return [
             'host'=>'1',
-            'dbname'=>'2',
+//            'dbname'=>'2',
             'user'=>'3',
             'password'=>'4',
-            'type' => '5',
+//            'type' => '5',
         ];
     }
 }
