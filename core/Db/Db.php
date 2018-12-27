@@ -14,6 +14,14 @@ class Db
 
     protected $conn;        //链接
 
+
+    protected $mapPdoType = [
+        'boolean' => \PDO::PARAM_BOOL,
+        'integer' => \PDO::PARAM_INT,
+        'string' => \PDO::PARAM_STR,
+        'double' => \PDO::PARAM_STR,
+    ];
+
     public function __construct($config) {
         if($this->checkParms($config)) {
             $this->host = $config['host'];
@@ -34,10 +42,60 @@ class Db
         }
     }
 
-    public function query($sql,$params) {
-        $sth = $this->conn->prepare($sql);
-        foreach($params as $k=>$v) {
-            $sth->bindValue($k,$v);
+    /**
+     * 执行查询
+     * @param $sql
+     * @param $params
+     * @return null|\PDOStatement
+     */
+    protected function exec($sql,$params) {
+        try {
+            /** @var \PDOStatement $sth */
+            $sth = $this->conn->prepare($sql);
+            foreach($params as $k=>$v) {
+                $type = isset($this->mapPdoType[gettype($v)])?$this->mapPdoType[gettype($v)]:null;
+                if(!$type) {
+                    throw new \Exception('不支持的参数类型');
+                }
+                $sth->bindValue($k,$v,$type);
+            }
+            return $sth->execute()?$sth:null;
+        } catch(\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+
+    /**
+     * 获取所有的查询结果
+     * @param $sql
+     * @param $params
+     * @return array|null
+     */
+    public function queryAll($sql,$params) {
+        if($sth = $this->exec($sql,$params)) {
+            return $sth->fetchAll();
+        } else {
+            return null;
+        }
+    }
+
+    public function queryRow($sql,$params) {
+        if($sth = $this->exec($sql,$params)) {
+            return $sth->fetch(\PDO::FETCH_ASSOC);
+        } else {
+            return null;
+        }
+    }
+
+    public function queryObject($className,$sql,$params) {
+        if(!class_exists($className)) {
+            return false;
+        }
+        if($sth = $this->exec($sql,$params)) {
+            return $sth->fetchObject($className);
+        } else {
+            return null;
         }
     }
 

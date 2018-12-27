@@ -8,5 +8,10 @@ namespace Model;
  */
 class UserModel extends Model
 {
+    public function __construct($field=[]) {
+        foreach($field as $k=>$v) {
+            $this->k = $v;
+        }
 
+    }
 }

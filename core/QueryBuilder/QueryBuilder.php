@@ -17,10 +17,27 @@ class QueryBuilder
     protected $form;
 
     protected $db;      //数据库连接
+    protected $model;   //想要操作的Model
 
     public function test() {
         print_r($this->where);
         print_r($this->params);
+    }
+
+    public function __construct() {
+
+    }
+
+    public function init($db,$modelName) {
+        $this->db = $db;
+        $this->model = $modelName;
+        $this->where = '';
+        $this->params = [];
+        $this->select = [];
+        $this->order = '';
+        $this->group = '';
+        $this->limit = '';
+        $this->form = '';
     }
 
     /**
@@ -238,7 +255,11 @@ class QueryBuilder
     }
 
     public function get() {
+        return $this->db->queryObject($this->model,$this->getSql(),$this->params);
+    }
 
+    public function getArray() {
+        return $this->db->queryAll($this->model,$this->getSql(),$this->params);
     }
 
     /**
@@ -263,15 +284,5 @@ class QueryBuilder
         return $this;
     }
 
-    public function selectToArray() {
 
-    }
-
-    public function selectToObject() {
-
-    }
-
-    protected function analysisSql($type) {
-
-    }
 }

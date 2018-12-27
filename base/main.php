@@ -48,7 +48,7 @@ class main
     /**
      * 获取数据库连接，如果没有，则连接
      * @param string $dbName
-     * @return mixed
+     * @return Db
      */
     public static function getDb($dbName='db') {
         if(isset(self::$map['db'][$dbName])) {
@@ -57,6 +57,7 @@ class main
             $config = self::$config['db'][$dbName];
             $db = new Db($config);
             self::$map['db'][$dbName] = $db;
+            return $db;
         }
     }
 }
