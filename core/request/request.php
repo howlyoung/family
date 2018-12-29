@@ -35,8 +35,8 @@ class request
             $r = new self();
             self::$obj = $r;
             //设置控制器和方法变量
-            $caArr = explode('/',$queryArr[0]);
-            $r->formatControllerAction($caArr);
+//            $caArr = explode('/',$queryArr[0]);
+            $r->formatControllerAction($queryArr);
 
             $r->setMethod($_SERVER['REQUEST_METHOD']);
             $r->setRequestParams();
@@ -79,15 +79,27 @@ class request
         if(!is_array($arr)) {
             throw new \Exception('解析控制器失败');
         }
-        if(count($arr) > 2) {
-            throw new \Exception('不支持多模块');
+
+        $controller = '';
+        $action = '';
+
+        foreach($arr as $k=>$v) {
+            $requestParamArr = explode('=',$v);
+            if(count($requestParamArr) > 1) {
+                $param = array_shift($requestParamArr);
+                if('r'==$param) {
+                    $valArr = explode('/',implode('=',$requestParamArr));
+                    $controller = array_shift($valArr);
+                    $action = implode('/',$valArr);
+                }
+            }
         }
-        $carr = explode('=',$arr[0]);
-        if(empty($carr[1])) {
-            throw new \Exception('URL格式不正确');
+
+        if(empty($controller)||empty($action)) {
+            throw new \Exception('无效的请求');
         }
-        $this->setController($carr[1]);
-        $action = empty($arr[1])?'index':$arr[1];
+
+        $this->setController($controller);
         $this->setAction($action);
     }
 
