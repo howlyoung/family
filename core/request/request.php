@@ -60,11 +60,19 @@ class request
     }
 
     protected function setGetParams($params) {
-        $this->get = $params;
+        $tmp = [];
+        foreach($params as $k=>$v) {
+            $tmp[$k] = \core\Filter\Filter::filterRequest($v);
+        }
+        $this->get = $tmp;
     }
 
     protected function setPostParams($params) {
-        $this->post = $params;
+        $tmp = [];
+        foreach($params as $k=>$v) {
+            $tmp[$k] = \core\Filter\Filter::filterRequest($v);
+        }
+        $this->post = $tmp;
     }
 
     protected function setController($controller) {
