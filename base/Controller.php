@@ -9,7 +9,8 @@ class Controller
     /** @var  \core\request\Respone $respone */
     protected $respone; //应答对象
 
-    protected $templete; //模板引擎对象
+    protected $templeteLoader; //模板加载器
+
 
     protected $layout;  //布局对象
 

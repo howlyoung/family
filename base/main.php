@@ -60,4 +60,22 @@ class main
             return $db;
         }
     }
+
+    /**
+     * ªÒ»°≈‰÷√    $key = 'key.key1.key2'
+     * @param $key
+     * @return mixed
+     */
+    public static function getConfig($key) {
+        $keyArr = explode('.',$key);
+        $tmp = self::$config;
+        foreach($keyArr as $v) {
+            if(!isset($tmp[$v])) {
+                return null;
+            } else {
+                $tmp = $tmp[$v];
+            }
+        }
+        return $tmp;
+    }
 }
