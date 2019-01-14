@@ -124,4 +124,22 @@ class request
                 break;
         }
     }
+
+    /**
+     * 获取get参数
+     * @param $name
+     * @return null
+     */
+    public function getParams($name) {
+        return isset($this->get[$name])?$this->get[$name]:null;
+    }
+
+    /**
+     * 获取post参数
+     * @param $name
+     * @return null
+     */
+    public function postParams($name) {
+        return isset($this->post[$name])?$this->post[$name]:null;
+    }
 }

@@ -29,6 +29,7 @@ class main
 
     public function run() {
         $request = request::analysisRequest();
+        session_start();    //开启session
         $controllerName = $request->getController();
         $objName = '\\Controller\\'.$controllerName.'Controller';
         /** @var \Controller\BaseController $controller */
@@ -77,5 +78,13 @@ class main
             }
         }
         return $tmp;
+    }
+
+    /**
+     * 获取当前登录的用户id
+     * @return int
+     */
+    public static function getUserId() {
+        return isset($_SESSION['uid'])?$_SESSION['uid']:0;
     }
 }

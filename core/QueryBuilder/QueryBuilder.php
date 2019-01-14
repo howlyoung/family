@@ -280,7 +280,8 @@ class QueryBuilder
     }
 
     public function from($table) {
-        $this->form = ' FROM '.$table;
+        $prefix = \main::getConfig('db.db.prefix');
+        $this->form = ' FROM '.$prefix.$table;
         return $this;
     }
 

@@ -5,7 +5,9 @@ class BaseController extends \base\Controller
 {
 
     public function __construct($request,$respone) {
+        /** @var \core\request\request $request */
         $this->request = $request;
+        /** @var \core\request\Respone $respone */
         $this->respone = $respone;
 
         $controllerName = str_replace('Controller','',basename(get_class($this)));
@@ -46,5 +48,21 @@ class BaseController extends \base\Controller
         } else {
             return $content;
         }
+    }
+
+    /**
+     * @param $name
+     * @return null
+     */
+    public function getParam($name) {
+        return $this->request->getParams($name);
+    }
+
+    /**
+     * @param $name
+     * @return null
+     */
+    public function postParam($name) {
+        return $this->request->postParams($name);
     }
 }
