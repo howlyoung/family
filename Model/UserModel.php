@@ -9,7 +9,7 @@ namespace Model;
 class UserModel extends Model
 {
     /**
-     * ÊôÐÔ×Ö¶Î
+     * å±žæ€§å­—æ®µ
      */
     public $id;
     public $name;

@@ -5,15 +5,15 @@ use core\request\Respone;
 use core\Db\Db;
 /**
  * Created by PhpStorm.
- * Ö÷³ÌĞò
+ * ä¸»ç¨‹åº
  */
 class main
 {
     private static $obj;
 
-    protected static $config;      //ÅäÖÃÊı×é
+    protected static $config;      //é…ç½®æ•°ç»„
 
-    protected static $map;         //»º´æµÄ²¿·Ö±äÁ¿
+    protected static $map;         //ç¼“å­˜çš„éƒ¨åˆ†å˜é‡
 
     private function  __construct() {
 
@@ -29,25 +29,25 @@ class main
 
     public function run() {
         $request = request::analysisRequest();
-        session_start();    //¿ªÆôsession
+        session_start();    //å¼€å¯session
         $controllerName = $request->getController();
         $objName = '\\Controller\\'.$controllerName.'Controller';
         /** @var \Controller\BaseController $controller */
         $controller = new $objName($request,new Respone());
         $action = $request->getAction();
 
-        //¿ªÆôÊä³ö»º³å
+        //å¼€å¯è¾“å‡ºç¼“å†²
         ob_start();
         $controller->beforeAction($action);
         $res = $controller->$action();
         $controller->afterAction($action);
         $controller->respone($res);
-        //Êä³öÄÚÈİ£¬½áÊø»º³å
+        //è¾“å‡ºå†…å®¹ï¼Œç»“æŸç¼“å†²
         ob_end_flush();
     }
 
     /**
-     * »ñÈ¡Êı¾İ¿âÁ¬½Ó£¬Èç¹ûÃ»ÓĞ£¬ÔòÁ¬½Ó
+     * è·å–æ•°æ®åº“è¿æ¥ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™è¿æ¥
      * @param string $dbName
      * @return Db
      */
@@ -63,7 +63,7 @@ class main
     }
 
     /**
-     * »ñÈ¡ÅäÖÃ    $key = 'key.key1.key2'
+     * è·å–é…ç½®    $key = 'key.key1.key2'
      * @param $key
      * @return mixed
      */
@@ -81,7 +81,7 @@ class main
     }
 
     /**
-     * »ñÈ¡µ±Ç°µÇÂ¼µÄÓÃ»§id
+     * è·å–å½“å‰ç™»å½•çš„ç”¨æˆ·id
      * @return int
      */
     public static function getUserId() {

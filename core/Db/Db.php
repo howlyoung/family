@@ -6,13 +6,13 @@ namespace core\Db;
  */
 class Db
 {
-    protected $host;    //Ö÷»úÃû³Æ
-    protected $dbname;  //Êı¾İ¿âÃû³Æ
-    protected $user;    //ÓÃ»§Ãû
-    protected $password;    //Á¬½ÓÃÜÂë
-    protected $type;    //Êı¾İ¿âÀàĞÍ
+    protected $host;    //ä¸»æœºåç§°
+    protected $dbname;  //æ•°æ®åº“åç§°
+    protected $user;    //ç”¨æˆ·å
+    protected $password;    //è¿æ¥å¯†ç 
+    protected $type;    //æ•°æ®åº“ç±»å‹
 
-    protected $conn;        //Á´½Ó
+    protected $conn;        //é“¾æ¥
 
 
     protected $mapPdoType = [
@@ -43,7 +43,7 @@ class Db
     }
 
     /**
-     * Ö´ĞĞ²éÑ¯
+     * æ‰§è¡ŒæŸ¥è¯¢
      * @param $sql
      * @param $params
      * @return null|\PDOStatement
@@ -55,7 +55,7 @@ class Db
             foreach($params as $k=>$v) {
                 $type = isset($this->mapPdoType[gettype($v)])?$this->mapPdoType[gettype($v)]:null;
                 if(!$type) {
-                    throw new \Exception('²»Ö§³ÖµÄ²ÎÊıÀàĞÍ');
+                    throw new \Exception('ä¸æ”¯æŒçš„å‚æ•°ç±»å‹');
                 }
                 $sth->bindValue($k,$v,$type);
             }
@@ -67,7 +67,7 @@ class Db
 
 
     /**
-     * »ñÈ¡ËùÓĞµÄ²éÑ¯½á¹û
+     * è·å–æ‰€æœ‰çš„æŸ¥è¯¢ç»“æœ
      * @param $sql
      * @param $params
      * @return array|null
@@ -106,11 +106,11 @@ class Db
      */
     protected function checkParms($config) {
         if(!is_array($config)) {
-            throw new \Exception('Êı¾İ¿âÅäÖÃµÄ²ÎÊı²»ÕıÈ·');
+            throw new \Exception('æ•°æ®åº“é…ç½®çš„å‚æ•°ä¸æ­£ç¡®');
         }
 
         $fieldArr = $this->getConfigField();
-        //¼ì²éÅäÖÃÏîÊÇ·ñÆëÈ«
+        //æ£€æŸ¥é…ç½®é¡¹æ˜¯å¦é½å…¨
         foreach($config as $k=>$v) {
             if(array_key_exists($k,$fieldArr)) {
                 unset($fieldArr[$k]);
@@ -120,12 +120,12 @@ class Db
             return true;
         } else {
             $msg = implode('_',array_flip($fieldArr));
-            throw new \Exception('Êı¾İ¿âÅäÖÃÈ±ÉÙ'.$msg);
+            throw new \Exception('æ•°æ®åº“é…ç½®ç¼ºå°‘'.$msg);
         }
     }
 
     /**
-     * ÅäÖÃÏîÓ¦ÓĞµÄ×Ö¶Î
+     * é…ç½®é¡¹åº”æœ‰çš„å­—æ®µ
      * @return array
      */
     protected function getConfigField() {

@@ -117,7 +117,7 @@ class request
                 $this->setGetParams($_GET);
                 break;
             case 'POST':
-                $this->setGetParams($_POST);
+                $this->setPostParams($_POST);
                 break;
             default;
                 throw new \Exception('不支持的请求类型');

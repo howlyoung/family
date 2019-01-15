@@ -13,6 +13,10 @@ class Validate
 
     }
 
+    /**
+     * @param $type
+     * @return null|self
+     */
     public static function getValidate($type) {
         $suffix = 'Validate';
         $className = __NAMESPACE__.DIRECTORY_SEPARATOR.$type.$suffix;
