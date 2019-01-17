@@ -28,12 +28,25 @@ class User
 
     /**
      * @param $name
-     * @return User|string
+     * @return User|null
      */
     public static function loadByName($name) {
-        $user = UserModel::loadByField(['name'=>$name]);
+        $user = UserModel::loadByField(['name'=>$name]);    //优化，此处与表字段耦合
         if(empty($user)) {
-            return '用户不存在';
+            return null;
+        } else {
+            return new self($user);
+        }
+    }
+
+    /**
+     * @param $id
+     * @return User|null
+     */
+    public static function loadById($id) {
+        $user = UserModel::loadByField(['id'=>$id]);//优化，此处与表字段耦合
+        if(empty($user)) {
+            return null;
         } else {
             return new self($user);
         }

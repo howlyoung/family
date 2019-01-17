@@ -3,6 +3,7 @@
 use core\request\request;
 use core\request\Respone;
 use core\Db\Db;
+use component\Module\User;
 /**
  * Created by PhpStorm.
  * 主程序
@@ -86,5 +87,13 @@ class main
      */
     public static function getUserId() {
         return isset($_SESSION['uid'])?$_SESSION['uid']:0;
+    }
+
+    /**
+     * @return User|null
+     */
+    public static function getUser() {
+        $uid = self::getUserId();
+        return User::loadById($uid);
     }
 }
