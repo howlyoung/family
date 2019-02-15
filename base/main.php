@@ -57,7 +57,8 @@ class main
             return self::$map['db'][$dbName];
         } else {
             $config = self::$config['db'][$dbName];
-            $db = new Db($config);
+//            $db = new $config['class']($config);
+            $db = $config['class']::getDb($config);
             self::$map['db'][$dbName] = $db;
             return $db;
         }

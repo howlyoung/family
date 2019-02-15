@@ -22,13 +22,21 @@ class Db
         'double' => \PDO::PARAM_STR,
     ];
 
-    public function __construct($config) {
-        if($this->checkParms($config)) {
-            $this->host = $config['host'];
+    public function __construct() {
+
+    }
+
+    public static function getDb($config) {
+        $obj = new self();
+        if($obj->checkParms($config)) {
+            $obj->host = $config['host'];
 //            $this->dbname = $config['dbname'];
-            $this->user = $config['user'];
-            $this->password = $config['password'];
-            $this->connect();
+            $obj->user = $config['user'];
+            $obj->password = $config['password'];
+            $obj->connect();
+            return $obj;
+        } else {
+            return null;
         }
     }
 
