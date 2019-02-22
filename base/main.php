@@ -57,9 +57,25 @@ class main
             return self::$map['db'][$dbName];
         } else {
             $config = self::$config['db'][$dbName];
-//            $db = new $config['class']($config);
-            $db = $config['class']::getDb($config);
-            self::$map['db'][$dbName] = $db;
+            try{
+                $db = new $config['class']();
+                if(empty($db)||!($db instanceof \core\Db\DbInterface)) {
+                    throw new Exception($dbName.'指定的数据处理类不正确!');
+                }
+            } catch(\Exception $e) {
+                echo $e->getMessage();
+                exit;
+            }
+            $d = $db->getDb($config);
+            try{
+                if(empty($d)) {
+                    throw new Exception($dbName.'数据库配置不正确');
+                }
+            } catch(\Exception $e) {
+                echo $e->getMessage();
+                exit;
+            }
+            self::$map['db'][$dbName] = $d;
             return $db;
         }
     }

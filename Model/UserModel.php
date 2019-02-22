@@ -1,5 +1,7 @@
 <?php
 namespace Model;
+use core\QueryBuilder\QueryBuilder;
+
 /**
  * Created by PhpStorm.
  * User: yanghao
@@ -21,4 +23,23 @@ class UserModel extends Model
 
     }
 
+    /**
+     * @param $pk
+     * @return mixed
+     */
+    public static function loadByPk($pk) {
+        return self::table()->select(['*'])->from(self::getTableName())->where(['id','=',$pk])->get();
+    }
+
+    /**
+     * @param array $params
+     * @return mixed
+     */
+    public static function loadByField(Array $params) {
+        $where = [];
+        foreach($params as $k=>$v) {
+            $where[] = [$k,'=',$v];
+        }
+        return self::table()->select(['*'])->from(self::getTableName())->where($where)->get();
+    }
 }

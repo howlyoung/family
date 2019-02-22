@@ -9,7 +9,7 @@
 namespace core\Db;
 
 
-class DbRedis
+class DbRedis implements DbInterface
 {
 
     protected $conn;    //redis链接对象
@@ -22,10 +22,13 @@ class DbRedis
         $this->conn = new \Redis();
     }
 
-    public static function getDb($config) {
-        $obj = new self();
-        $obj->connect($config);
-        return $obj;
+    /**
+     * @param $config
+     * @return $this
+     */
+    public function getDb($config) {
+        $this->connect($config);
+        return $this;
     }
 
     public function connect($config) {
@@ -88,4 +91,34 @@ class DbRedis
     public function getHashAll($key) {
         return $this->conn->hGetAll($key);
     }
+
+    public function setSet($key,$val) {
+        return $this->conn->sadd($key,$val);
+    }
+
+    public function getAllSet($key) {
+        return $this->conn->sMembers($key);
+    }
+
+    public function setSortSet($key,$k,$val) {
+        $this->conn->zAdd($key,$val,$k);
+    }
+
+    public function getSortSetByKey($key,$k) {
+//        return $this->conn->
+    }
+
+    public function getSortSetScoreByKey($key,$k) {
+        return $this->conn->zScore($key,$k);
+    }
+
+    /**
+     * 获取有效集合最大值的键
+     * @param $key
+     * @return array
+     */
+    public function getSortSetMax($key) {
+        return $this->conn->zRevRangeByScore($key, '+inf','-inf',['withscores' => true,'limit' => [0,1]]);
+    }
+
 }

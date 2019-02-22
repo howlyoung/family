@@ -4,7 +4,7 @@ namespace core\Db;
 /**
 *pdo
  */
-class Db
+class Db implements DbInterface
 {
     protected $host;    //主机名称
     protected $dbname;  //数据库名称
@@ -26,15 +26,14 @@ class Db
 
     }
 
-    public static function getDb($config) {
-        $obj = new self();
-        if($obj->checkParms($config)) {
-            $obj->host = $config['host'];
+    public function getDb($config) {
+        if($this->checkParms($config)) {
+            $this->host = $config['host'];
 //            $this->dbname = $config['dbname'];
-            $obj->user = $config['user'];
-            $obj->password = $config['password'];
-            $obj->connect();
-            return $obj;
+            $this->user = $config['user'];
+            $this->password = $config['password'];
+            $this->connect();
+            return $this;
         } else {
             return null;
         }

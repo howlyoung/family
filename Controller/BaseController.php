@@ -11,9 +11,12 @@ class BaseController extends \base\Controller
         $this->respone = $respone;
 
         $controllerName = str_replace('Controller','',basename(get_class($this)));
+        $viewPath = '../View/'.$controllerName;
         //加载模板引擎
-        \Twig_Autoloader::register();
-        $this->templeteLoader = new \Twig_Loader_Filesystem('../View/'.$controllerName);
+        if(file_exists($viewPath)) {
+            \Twig_Autoloader::register();
+            $this->templeteLoader = new \Twig_Loader_Filesystem($viewPath);
+        }
     }
 
     public function respone($res) {

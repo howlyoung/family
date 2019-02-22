@@ -20,8 +20,10 @@ class MemoModel extends Model
 
     protected $originField;     //记录原始字段值，在更新时做比较，有修改的字段才更新到数据库
 
+    const TABLE_NAME = 'MEMO';
+
     public static function loadByPk($id) {
-        $redis = \main::getDb('redis');
+        $redis = self::getRedis();
         $v = $redis->getHashAll($id);
         $obj =  self::init($v);
         $obj->formatKey($id);
@@ -46,6 +48,10 @@ class MemoModel extends Model
     public function getKey() {
         return $this->groupId.'-'.$this->id;
     }
+
+    public function getGroupId() {
+        return $this->groupId;
+    }
     /**
      * 创建memo
      * @param $groupId
@@ -59,7 +65,7 @@ class MemoModel extends Model
      * @return mix
      */
     public static function create($groupId,$title,$content,$specifyUserId,$createUserId,$status,$dtCreate,$dtUpdate) {
-        $redis = \main::getDb('redis');
+        $redis = self::getRedis();
         $id = rand(0,1999);
         $key = $groupId.'-'.$id;
         $redis->setHash($key,'title',$title);
@@ -72,12 +78,16 @@ class MemoModel extends Model
         return $key;
     }
 
+    public static function loadListByGroupId($gid) {
+
+    }
+
     public function setField($field,$value) {
         $this->$field = $value;
     }
 
     public function update() {
-        $redis = \main::getDb('redis');
+        $redis = self::getRedis();
         $redis->setHashAll($this->getKey(),$this->getFieldArr());
     }
 
