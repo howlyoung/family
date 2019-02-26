@@ -76,6 +76,14 @@ class DbRedis implements DbInterface
         ];
     }
 
+    public function setString($key,$val) {
+        $this->conn->set($key,$val);
+    }
+
+    public function getString($key) {
+        return $this->conn->get($key);
+    }
+
     public function setHash($key,$field,$val) {
         $this->conn->hSet($key,$field,$val);
     }

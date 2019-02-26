@@ -19,6 +19,8 @@ class UserModel extends Model
     public $remark;
     public $dt_create;
 
+    const TABLE_NAME = 'user';
+
     public function __construct() {
 
     }
@@ -41,5 +43,14 @@ class UserModel extends Model
             $where[] = [$k,'=',$v];
         }
         return self::table()->select(['*'])->from(self::getTableName())->where($where)->get();
+    }
+
+    /**
+     * @param $groupId
+     * @param MemoModel $memoModel
+     */
+    public function createMemo($groupId,$memoModel) {
+        $memoModel->setField('groupId',$groupId);
+        $memoModel->setField('createUserId',$this->id);
     }
 }

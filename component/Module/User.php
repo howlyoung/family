@@ -1,6 +1,7 @@
 <?php
 namespace component\Module;
 use component\Validate\Validate;
+use Model\UserGroupModel;
 use Model\UserModel;
 
 /**
@@ -73,5 +74,11 @@ class User
      */
     public function logout() {
         session_destroy();
+    }
+
+    public function createMemo($groupId,$memoModel) {
+        $this->model->createMemo($groupId,$memoModel);
+        $userGroup = UserGroupModel::loadById($groupId);
+        $userGroup->addMemo($memoModel->id);
     }
 }

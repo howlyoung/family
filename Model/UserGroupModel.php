@@ -71,7 +71,7 @@ class UserGroupModel extends Model
      * @param $memberId
      * @return bool
      */
-    public function addMember($memberId) {
+    public function addMember($memberId) {  //参数可考虑使用user对象
         if(!in_array($memberId,$this->memberList)) {
             array_push($this->memberList,$memberId);
             $this->save();
@@ -85,7 +85,7 @@ class UserGroupModel extends Model
      * @param $memoId
      * @return bool
      */
-    public function addMemo($memoId) {
+    public function addMemo($memoId) {  //参数可考虑使用memo对象
         if(!in_array($memoId,$this->memoList)) {
             array_push($this->memoList,$memoId);
             $this->save();

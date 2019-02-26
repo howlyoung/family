@@ -9,6 +9,7 @@
 namespace Controller;
 
 use component\Module\User;
+use Model\MemoModel;
 
 class UserController extends BaseController
 {
@@ -38,5 +39,26 @@ class UserController extends BaseController
             $user->logout();
         }
         return '已经退出';
+    }
+
+    public function createMemo() {
+        $gid = $this->postParam('gid');
+
+        $user = \main::getUser();
+
+        $title = $this->postParam('title');
+        $content = $this->postParam('content');
+        $specifyUserId = $this->postParam('specifyUserId');
+        $status = $this->postParam('status');
+
+        $memo = MemoModel::init([
+            'title'=>$title,
+            'content'=>$content,
+            'specifyUserId'=>$specifyUserId,
+            'status'=>$status,
+        ]);
+
+        $user->createMemo($gid,$memo);
+
     }
 }
