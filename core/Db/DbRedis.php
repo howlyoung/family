@@ -104,6 +104,10 @@ class DbRedis implements DbInterface
         return $this->conn->sadd($key,$val);
     }
 
+    public function moveSet($sourceKey,$targetKey,$key) {
+        return $this->conn->sMove($sourceKey,$targetKey,$key);
+    }
+
     public function getAllSet($key) {
         return $this->conn->sMembers($key);
     }

@@ -66,19 +66,6 @@ class MemoModel extends Model
     }
 
     /**
-     * 根据数据初始化对象
-     * @param $arr
-     * @return MemoModel
-     */
-    public static function init($arr) {
-        $obj = new self();
-        foreach($arr as $k=>$v) {
-            $obj->$k = $v;
-        }
-        return $obj;
-    }
-
-    /**
      * @param $key
      */
     public function formatKey($key) {
@@ -106,9 +93,8 @@ class MemoModel extends Model
      * key 字段名称  value 字段值  问题：字段是protected属性，如何开放给使用者 优化调整
      * @return self
      */
-    public static function createModel($params) {
+    public static function init($params) {
         $model = new self();
-
         foreach($params as $field => $value) {
             $model->setField($field,$value);
         }
@@ -138,6 +124,7 @@ class MemoModel extends Model
     public function setField($field,$value) {
         $fieldArr = $this->getFieldArr();
         if(array_key_exists($field,$fieldArr)) {
+            $this->originField[$field] = $this->$field; //保存修改前的值
             $this->$field = $value;
         }
     }
@@ -176,7 +163,16 @@ class MemoModel extends Model
      * 调整状态列表
      */
     public function adjustStatusList() {
+        $redis = self::getRedis();
 
+        if(empty($this->originField['status'])) {      //新纪录
+            $statusKey = self::getStatusKey($this->status);
+            $redis->setSet($statusKey,$this->getId());
+        } elseif($this->originField['status']!=$this->status) { //状态变化,移动状态列表数据
+            $oldStatusKey = self::getStatusKey($this->originField['status']);
+            $statusKey = self::getStatusKey($this->status);
+            $redis->moveSet($oldStatusKey,$statusKey,$this->getId());
+        }
     }
 
     public function getContent() {

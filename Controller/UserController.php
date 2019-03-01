@@ -58,7 +58,7 @@ class UserController extends BaseController
             'specifyUserId' => $specifyUserId,
             'status' => $status,
         ];
-        $memo = MemoModel::createModel($params);
+        $memo = MemoModel::init($params);
         if(!$user->createMemo($memo)) {
             return $memo->getErrMsg();
         }
