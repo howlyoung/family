@@ -16,9 +16,9 @@ class MemoController extends BaseController
         $group = UserGroupModel::loadById($gid);
         $user = \main::getUser();
 
-        var_dump($group);
-//        $uname = $this->getParam('uname');
-//        $user = User::loadByName($uname);
-
+        $list = $group->getMemoModelList();
+        return $this->render('index.html',[
+            'list' => $list,
+        ]);
     }
 }

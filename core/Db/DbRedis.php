@@ -109,7 +109,7 @@ class DbRedis implements DbInterface
     }
 
     public function setSortSet($key,$k,$val) {
-        $this->conn->zAdd($key,$val,$k);
+        return $this->conn->zAdd($key,$val,$k);
     }
 
     public function getSortSetByKey($key,$k) {
@@ -118,6 +118,10 @@ class DbRedis implements DbInterface
 
     public function getSortSetScoreByKey($key,$k) {
         return $this->conn->zScore($key,$k);
+    }
+
+    public function getAllSortSet($key) {
+        return $this->conn->zRevRangeByScore($key,'+inf','-inf');
     }
 
     /**

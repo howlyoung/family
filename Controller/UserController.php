@@ -42,23 +42,27 @@ class UserController extends BaseController
     }
 
     public function createMemo() {
-        $gid = $this->postParam('gid');
+        $gid = $this->getParam('gid');
 
         $user = \main::getUser();
 
-        $title = $this->postParam('title');
-        $content = $this->postParam('content');
-        $specifyUserId = $this->postParam('specifyUserId');
-        $status = $this->postParam('status');
+        $title = $this->getParam('title');
+        $content = $this->getParam('content');
+        $specifyUserId = $this->getParam('specifyUserId');
+        $status = $this->getParam('status');
 
-        $memo = MemoModel::init([
-            'title'=>$title,
-            'content'=>$content,
-            'specifyUserId'=>$specifyUserId,
-            'status'=>$status,
-        ]);
+        $params = [
+            'groupId' => $gid,
+            'title' => $title,
+            'content' => $content,
+            'specifyUserId' => $specifyUserId,
+            'status' => $status,
+        ];
+        $memo = MemoModel::createModel($params);
+        if(!$user->createMemo($memo)) {
+            return $memo->getErrMsg();
+        }
 
-        $user->createMemo($gid,$memo);
 
     }
 }

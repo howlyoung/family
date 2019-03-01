@@ -76,9 +76,11 @@ class User
         session_destroy();
     }
 
-    public function createMemo($groupId,$memoModel) {
-        $this->model->createMemo($groupId,$memoModel);
-        $userGroup = UserGroupModel::loadById($groupId);
-        $userGroup->addMemo($memoModel->id);
+    /**
+     * @param \Model\MemoModel $memoModel
+     * @return bool
+     */
+    public function createMemo($memoModel) {
+        return $this->model->createMemo($memoModel);
     }
 }

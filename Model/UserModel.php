@@ -46,11 +46,18 @@ class UserModel extends Model
     }
 
     /**
-     * @param $groupId
      * @param MemoModel $memoModel
+     * @return bool
      */
-    public function createMemo($groupId,$memoModel) {
-        $memoModel->setField('groupId',$groupId);
-        $memoModel->setField('createUserId',$this->id);
+    public function createMemo($memoModel) {
+        $groupModel = UserGroupModel::loadById($memoModel->getGroupId());
+        if(!$groupModel->userIsMember($this)) {
+            $memoModel->setErrMsg('用户不在该群组中');
+            return false;
+        } else {
+            $memoModel->setField('createUserId',$this->id);
+            $memoModel->save();
+            return true;
+        }
     }
 }

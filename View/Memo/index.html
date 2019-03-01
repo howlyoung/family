@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>login</title>
+    <script type="text/javascript" src="/asset/js/bootstrap.min.js"></script>
+    <link href="/asset/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="container layout">
+    {% for value in list %}
+    <div class="list-group">
+        <a href="#" class="list-group-item">
+            <h4 class="list-group-item-heading">{{ value.getTitle }}</h4>
+            <p class="list-group-item-text">
+                {{ value.getContent}}
+                <span class="badge">{{ value.getStatusName }}</span>
+            </p>
+            <p class="list-group-item-text">{{ value.getDtCreate }}</p>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
