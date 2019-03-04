@@ -143,7 +143,7 @@ class MemoModel extends Model
      */
     public function save() {
         $redis = self::getRedis();
-        if(empty($this->id)) { //id为空，表示为新记录
+        if(is_null($this->id)) { //id为空，表示为新记录
             $this->id = self::getMaxId();
             $this->setDtUpdate(time());
             $this->setDtCreate(time());
@@ -165,7 +165,7 @@ class MemoModel extends Model
     public function adjustStatusList() {
         $redis = self::getRedis();
 
-        if(empty($this->originField['status'])) {      //新纪录
+        if(is_null($this->originField['status'])) {      //新纪录
             $statusKey = self::getStatusKey($this->status);
             $redis->setSet($statusKey,$this->getId());
         } elseif($this->originField['status']!=$this->status) { //状态变化,移动状态列表数据

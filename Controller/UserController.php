@@ -41,28 +41,31 @@ class UserController extends BaseController
         return '已经退出';
     }
 
-    public function createMemo() {
-        $gid = $this->getParam('gid');
-
+    public function cMemo() {
         $user = \main::getUser();
 
-        $title = $this->getParam('title');
-        $content = $this->getParam('content');
-        $specifyUserId = $this->getParam('specifyUserId');
-        $status = $this->getParam('status');
+        $groupList = $user->getGroupList();
+        return $this->render('create-memo.html',[
+            'groupList' => $groupList,
+            'statusList'=> MemoModel::statusNameList(),
+        ]);
+    }
+
+    public function createMemo() {
+        $gid = $this->postParam('group');
+        $user = \main::getUser();
 
         $params = [
             'groupId' => $gid,
-            'title' => $title,
-            'content' => $content,
-            'specifyUserId' => $specifyUserId,
-            'status' => $status,
+            'title' => $this->postParam('title'),
+            'content' => $this->postParam('content'),
+            'specifyUserId' => $this->postParam('specifyUserId',0),
+            'status' => $this->postParam('status'),
         ];
+
         $memo = MemoModel::init($params);
         if(!$user->createMemo($memo)) {
             return $memo->getErrMsg();
         }
-
-
     }
 }

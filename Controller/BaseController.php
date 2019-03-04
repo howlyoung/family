@@ -55,17 +55,21 @@ class BaseController extends \base\Controller
 
     /**
      * @param $name
+     * @param $default
      * @return null
      */
-    public function getParam($name) {
-        return $this->request->getParams($name);
+    public function getParam($name,$default=null) {
+        $res =  $this->request->getParams($name);
+        return is_null($res)?$default:$res;
     }
 
     /**
      * @param $name
+     * @param $default
      * @return null
      */
-    public function postParam($name) {
-        return $this->request->postParams($name);
+    public function postParam($name,$default=null) {
+        $res =  $this->request->postParams($name);
+        return is_null($res)?$default:$res;
     }
 }

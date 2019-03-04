@@ -83,4 +83,18 @@ class User
     public function createMemo($memoModel) {
         return $this->model->createMemo($memoModel);
     }
+
+    /**
+     * @return array
+     */
+    public function getGroupList() {
+        $groupList = UserGroupModel::loadAll();
+        $arr = [];
+        foreach($groupList as $group) {
+            if($group->userIsMember($this->model)) {
+                $arr[] = $group;
+            }
+        }
+        return $arr;
+    }
 }

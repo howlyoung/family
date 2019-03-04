@@ -9,6 +9,7 @@ namespace Model;
 class UserGroupModel extends Model
 {
     protected $key;
+    protected $id;
     protected $name;
     protected $ownerId;
     protected $memberList;
@@ -38,6 +39,14 @@ class UserGroupModel extends Model
         $redis->setSortSet(self::getTableName(),$key,$id);
 
         return $key;
+    }
+
+    public function getName() {
+        return $this->name;
+    }
+
+    public function getId() {
+        return $this->id;
     }
 
     public function getMemberList() {
@@ -89,10 +98,43 @@ class UserGroupModel extends Model
             $data = $redis->getHashAll($key);
             $model = new self();
             $model->key = $key;
+            $model->id = $id;
             return $model->init($data);
         } else {
             return null;
         }
+    }
+
+    /**
+     * 通过key来获取
+     * @param $key
+     * @return $this|UserGroupModel|null
+     */
+    public static function loadByKey($key) {
+        $redis = self::getRedis();
+
+        if($id = $redis->getSortSetScoreByKey(self::getTableName(),$key)) {
+            $data = $redis->getHashAll($key);
+            $model = new self();
+            $model->key = $key;
+            $model->id = $id;
+            return $model->init($data);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function loadAll() {
+        $redis = self::getRedis();
+        $keyList = $redis->getAllSortSet(self::getTableName());
+        $arr = [];
+        foreach($keyList as $key) {
+            $arr[] = self::loadByKey($key);
+        }
+        return $arr;
     }
 
     public function init($data) {
