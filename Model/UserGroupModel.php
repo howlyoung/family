@@ -24,52 +24,105 @@ class UserGroupModel extends Model
         $arr = [
             'ownerId' => $ownerId,
             'name'    => $name,
-//            'memberListId' => json_encode([$ownerId]),
-//            'memoListId' => '',
         ];
         $max = $redis->getSortSetMax(self::getTableName());
 
+        if(is_null($max)) {
+            return null;
+        }
         $id = current($max) + 1;
-        $key = self::TABLE_NAME.'-'.$id;
-        $arr['memberListId'] = self::TABLE_NAME.'_'.'MEMBER'.'-'.$id;
-        $arr['memoListId'] = self::TABLE_NAME.'_'.'MEMO'.'-'.$id;
+        $key = self::getKeyById($id);
+        $arr['memberListId'] = self::getMemberIdListKeyById($id);
+        $arr['memoListId'] = self::getMemoIdListKeyById($id);
         //添加散列
-        $redis->setHashAll($key,$arr);
-        //将key加入用户组的有序集合中
-        $redis->setSortSet(self::getTableName(),$key,$id);
-
-        return $key;
+        $model = null;
+        if($redis->setHashAll($key,$arr)) {
+            $model = self::loadById($id);
+            //将key加入用户组的有序集合中
+            $redis->setSortSet(self::getTableName(),$key,$id);
+        }
+        return $model;
     }
 
+    /**
+     * 通过id获取key
+     * @param $id
+     * @return string
+     */
+    public static function getKeyById($id) {
+        return self::TABLE_NAME.'-'.$id;
+    }
+
+    /**
+     * 获取会员列表的key
+     * @param $id
+     * @return string
+     */
+    public static function getMemberIdListKeyById($id) {
+        return self::TABLE_NAME.'_'.'MEMBER'.'-'.$id;
+    }
+
+    /**
+     * 获取memo列表的Key
+     * @param $id
+     * @return string
+     */
+    public static function getMemoIdListKeyById($id) {
+        return self::TABLE_NAME.'_'.'MEMO'.'-'.$id;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getName() {
         return $this->name;
     }
 
+    /**
+     * @return mixed
+     */
     public function getId() {
         return $this->id;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getKey() {
+        return $this->key;
+    }
+
+    /**
+     * @return array
+     */
     public function getMemberList() {
-        $redis = self::getRedis();
-        $this->memberList = $redis->getAllSortSet($this->memberListId);
-        return $this->memberList;
+        return empty($this->memberList)?self::getRedis()->getAllSortSet($this->memberListId):$this->memberList;
     }
 
+    /**
+     * @return array
+     */
     public function getMemoList() {
-        $redis = self::getRedis();
-        $this->memoList = $redis->getAllSortSet($this->memoListId);
-        return $this->memoList;
+        return empty($this->memoList)?self::getRedis()->getAllSortSet($this->memoListId):$this->memoList;
     }
 
+    /**
+     * @return UserModel[]
+     */
     public function getMemberModelList() {
-        $redis = self::getRedis();
-        $this->memberList = $redis->getAllSortSet($this->memberListId);
-        return $this->memberList;
+        $this->memberList = $this->getMemberList();
+        $arr = [];
+        foreach($this->memberList as $memberId) {
+            $arr[] = UserModel::loadByPk($memberId);
+        }
+        return $arr;
     }
 
+    /**
+     * @return MemoModel[]
+     */
     public function getMemoModelList() {
-        $redis = self::getRedis();
-        $this->memoList = $redis->getAllSortSet($this->memoListId);
+        $this->memoList = $this->getMemoList();
         $arr = [];
         foreach($this->memoList as $memoId) {
             $arr[] = MemoModel::loadByPk($memoId);
@@ -92,17 +145,8 @@ class UserGroupModel extends Model
      * @return $this|UserGroupModel|null
      */
     public static function loadById($id) {
-        $redis = self::getRedis();
-        $key = self::getTableName().'-'.$id;
-        if($redis->getSortSetScoreByKey(self::getTableName(),$key) == $id) {
-            $data = $redis->getHashAll($key);
-            $model = new self();
-            $model->key = $key;
-            $model->id = $id;
-            return $model->init($data);
-        } else {
-            return null;
-        }
+        $key = self::getKeyById($id);
+        return self::loadByKey($key);
     }
 
     /**
@@ -116,9 +160,7 @@ class UserGroupModel extends Model
         if($id = $redis->getSortSetScoreByKey(self::getTableName(),$key)) {
             $data = $redis->getHashAll($key);
             $model = new self();
-            $model->key = $key;
-            $model->id = $id;
-            return $model->init($data);
+            return $model->init($key,$id,$data);
         } else {
             return null;
         }
@@ -128,8 +170,7 @@ class UserGroupModel extends Model
      * @return self[]
      */
     public static function loadAll() {
-        $redis = self::getRedis();
-        $keyList = $redis->getAllSortSet(self::getTableName());
+        $keyList = self::getRedis()->getAllSortSet(self::getTableName());
         $arr = [];
         foreach($keyList as $key) {
             $arr[] = self::loadByKey($key);
@@ -137,17 +178,20 @@ class UserGroupModel extends Model
         return $arr;
     }
 
-    public function init($data) {
-        $arr = $this->fieldType();
+    /**
+     * @param $key
+     * @param $id
+     * @param $data
+     * @return $this
+     */
+    public function init($key,$id,$data) {
         foreach($data as $k=>$v) {
-            if(array_key_exists($k,$arr)) {
-                if($arr[$k]=='array') {
-                    $this->$k = json_decode($v,true);
-                } else {
-                    $this->$k = $v;
-                }
-            }
+            $this->$k = $v;
         }
+        $this->key = $key;
+        $this->id = $id;
+        $this->memberList = $this->getMemberList();
+        $this->memoList = $this->getMemoList();
         return $this;
     }
 
@@ -156,12 +200,10 @@ class UserGroupModel extends Model
      * @return bool
      */
     public function addMember($memberId) {  //参数可考虑使用user对象
-        $this->getMemberList();
         if(!in_array($memberId,$this->memberList)) {
             array_push($this->memberList,$memberId);
-            $redis = self::getRedis();
-            $redis->setSortSet($this->memberListId,$memberId,time());
-            return true;
+            $res = self::getRedis()->setSortSet($this->memberListId,$memberId,time());
+            return (0<$res);
         } else {
             return false;
         }
@@ -173,12 +215,10 @@ class UserGroupModel extends Model
      * @return bool
      */
     public function addMemo($memoId) {  //参数可考虑使用memo对象
-        $this->getMemoList();
         if(!in_array($memoId,$this->memoList)) {
             array_push($this->memoList,$memoId);
-            $redis = self::getRedis();
-            $redis->setSortSet($this->memoListId,$memoId,time());
-            return true;
+            $res = self::getRedis()->setSortSet($this->memoListId,$memoId,time());
+            return (0<$res);
         } else {
             return false;
         }
@@ -196,19 +236,6 @@ class UserGroupModel extends Model
             'name' => $this->name,
             'memberListId' => $this->memberListId,
             'memoListId' => $this->memoListId,
-//            'memberList' => json_encode($this->memberList),
-//            'memoList' => json_encode($this->memoList),
-        ];
-    }
-
-    public function fieldType() {
-        return [
-            'ownerId' => 'float',
-            'name' => 'string',
-            'memberListId' => 'string',
-            'memoListId' => 'string',
-//            'memberList' => 'array',
-//            'memoList' => 'array',
         ];
     }
 

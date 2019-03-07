@@ -34,17 +34,14 @@ class UserController extends BaseController
     }
 
     public function logout() {
-        $user = \main::getUser();
-        if(!empty($user)) {
-            $user->logout();
+        if(!empty($this->user)) {
+            $this->user->logout();
         }
         return '已经退出';
     }
 
     public function cMemo() {
-        $user = \main::getUser();
-
-        $groupList = $user->getGroupList();
+        $groupList = $this->user->getGroupList();
         return $this->render('create-memo.html',[
             'groupList' => $groupList,
             'statusList'=> MemoModel::statusNameList(),
@@ -53,7 +50,6 @@ class UserController extends BaseController
 
     public function createMemo() {
         $gid = $this->postParam('group');
-        $user = \main::getUser();
 
         $params = [
             'groupId' => $gid,
@@ -64,7 +60,7 @@ class UserController extends BaseController
         ];
 
         $memo = MemoModel::init($params);
-        if(!$user->createMemo($memo)) {
+        if(!$this->user->createMemo($memo)) {
             return $memo->getErrMsg();
         }
     }

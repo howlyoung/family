@@ -4,11 +4,15 @@ namespace Controller;
 class BaseController extends \base\Controller
 {
 
+    protected $user;    //登录用户对象
+
     public function __construct($request,$respone) {
         /** @var \core\request\request $request */
         $this->request = $request;
         /** @var \core\request\Respone $respone */
         $this->respone = $respone;
+
+        $this->user = \main::getUser();
 
         $controllerName = str_replace('Controller','',basename(get_class($this)));
         $viewPath = '../View/'.$controllerName;

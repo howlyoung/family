@@ -81,7 +81,15 @@ class User
      * @return bool
      */
     public function createMemo($memoModel) {
-        return $this->model->createMemo($memoModel);
+        $groupModel = UserGroupModel::loadById($memoModel->getGroupId());
+        if(!$groupModel->userIsMember($this->model)) {
+            $memoModel->setErrMsg('用户不在该群组中');
+            return false;
+        } else {
+            $memoModel->save();
+            $memoModel->setCreateId($this->model->id);
+            return true;
+        }
     }
 
     /**

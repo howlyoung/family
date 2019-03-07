@@ -32,13 +32,15 @@ class DbRedis implements DbInterface
     }
 
     public function connect($config) {
-        if($this->checkParams($config)) {
-            $this->conn->pconnect($this->host,$this->port,1);
-//            if(!$this->conn->auth($this->pwd)) {
-//                return null;
-//            }
-        } else {
-            return null;
+        try {
+            if($this->checkParams($config)) {
+                if(!$this->conn->pconnect($this->host,$this->port,1)) {
+                    throw new \Exception('连接失败,请检查服务器配置项和服务器是否开启');
+                }
+            }
+        } catch(\Exception $e) {
+            echo $e->getMessage();
+            exit;
         }
     }
 
@@ -93,7 +95,7 @@ class DbRedis implements DbInterface
     }
 
     public function setHashAll($key,$hash) {
-        $this->conn->hMset($key,$hash);
+        return $this->conn->hMset($key,$hash);
     }
 
     public function getHashAll($key) {

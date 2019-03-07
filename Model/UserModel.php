@@ -44,20 +44,4 @@ class UserModel extends Model
         }
         return self::table()->select(['*'])->from(self::getTableName())->where($where)->get();
     }
-
-    /**
-     * @param MemoModel $memoModel
-     * @return bool
-     */
-    public function createMemo($memoModel) {
-        $groupModel = UserGroupModel::loadById($memoModel->getGroupId());
-        if(!$groupModel->userIsMember($this)) {
-            $memoModel->setErrMsg('用户不在该群组中');
-            return false;
-        } else {
-            $memoModel->setField('createUserId',$this->id);
-            $memoModel->save();
-            return true;
-        }
-    }
 }

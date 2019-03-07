@@ -18,8 +18,6 @@ class MemoModel extends Model
     protected $dtCreate;        //创建时间
     protected $dtUpdate;        //最近更新时间
 
-    protected $errorMsg;        //错误信息
-
     protected $originField;     //记录原始字段值，在更新时做比较，有修改的字段才更新到数据库
 
     const TABLE_NAME = 'MEMO';  //键名
@@ -40,15 +38,38 @@ class MemoModel extends Model
      * @return MemoModel|null
      */
     public static function loadByPk($id) {
-        $redis = self::getRedis();
-        $key = static::getTableName().'-'.$id;
-        $v = $redis->getHashAll($key);
-        if(empty($v)) {
+        $key = self::getKeyById($id);
+        return self::loadByKey($key);
+    }
+
+    /**
+     * @param $key
+     * @return MemoModel|null
+     */
+    public static function loadByKey($key) {
+        $data = self::getRedis()->getHashAll($key);
+        if(empty($data)) {
             return null;
         }
-        $obj =  self::init($v);
-        $obj->formatKey($id);
-        return $obj;
+        $data['id'] = self::getIdByKey($key);
+        return self::init($data);
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public static function getIdByKey($key) {
+        $arr = explode('-',$key);
+        return $arr[1];
+    }
+
+    /**
+     * @param $id
+     * @return string
+     */
+    public static function getKeyById($id) {
+        return self::getTableName().'-'.$id;
     }
 
     /**
@@ -63,13 +84,6 @@ class MemoModel extends Model
             self::STATUS_COMPLETE => self::STATUS_COMPLETE_KEY,
         ];
         return isset($arr[$status])?$arr[$status]:'';
-    }
-
-    /**
-     * @param $key
-     */
-    public function formatKey($key) {
-        $this->id = $key;
     }
 
     /**
@@ -107,8 +121,7 @@ class MemoModel extends Model
      * @return int
      */
     public static function getMaxId() {
-        $redis = self::getRedis();
-        $id = $redis->getString(static::INCREMENT_COUNT_KEY);
+        $id = self::getRedis()->getString(static::INCREMENT_COUNT_KEY);
         return empty($id)?0:intval($id);
     }
 
@@ -125,8 +138,8 @@ class MemoModel extends Model
         $fieldArr = $this->getFieldArr();
         if(array_key_exists($field,$fieldArr)) {
             $this->originField[$field] = $this->$field; //保存修改前的值
-            $this->$field = $value;
         }
+        $this->$field = $value;
     }
 
     public function setDtCreate($dt) {
@@ -137,24 +150,34 @@ class MemoModel extends Model
         $this->setField('dtUpdate',$dt);
     }
 
+    public function setCreateId($id) {
+        $this->setField('createUserId',$id);
+    }
+
     /**
      * 更新和保存
      * @return bool
      */
     public function save() {
         $redis = self::getRedis();
-        if(is_null($this->id)) { //id为空，表示为新记录
+        if($this->isNewRecord()) { //id为空，表示为新记录
             $this->id = self::getMaxId();
+            $userGroup = UserGroupModel::loadById($this->groupId);
+            if(is_null($userGroup)) {
+                $this->setErrMsg('用户组不存在');
+                return false;
+            }
             $this->setDtUpdate(time());
             $this->setDtCreate(time());
-            $redis->setHashAll($this->getKey(),$this->getFieldArr());
-            $redis->setString(static::INCREMENT_COUNT_KEY,($this->id+1));
-            $this->adjustStatusList();
-            $userGroup = UserGroupModel::loadById($this->groupId);
-            $userGroup->addMemo($this->getId());
+            if($redis->setHashAll($this->getKey(),$this->getFieldArr())) {
+                $redis->setString(static::INCREMENT_COUNT_KEY,($this->id+1));
+                $this->adjustStatusList();
+                $userGroup->addMemo($this->getId());
+            }
         } else {
-            $redis->setHashAll($this->getKey(),$this->getFieldArr());
-            $this->adjustStatusList();  //调整状态列表
+            if($redis->setHashAll($this->getKey(),$this->getFieldArr())) {
+                $this->adjustStatusList();  //调整状态列表
+            }
         }
         return true;
     }
@@ -165,7 +188,7 @@ class MemoModel extends Model
     public function adjustStatusList() {
         $redis = self::getRedis();
 
-        if(is_null($this->originField['status'])) {      //新纪录
+        if($this->isNewRecord()) {      //新纪录
             $statusKey = self::getStatusKey($this->status);
             $redis->setSet($statusKey,$this->getId());
         } elseif($this->originField['status']!=$this->status) { //状态变化,移动状态列表数据
@@ -173,6 +196,14 @@ class MemoModel extends Model
             $statusKey = self::getStatusKey($this->status);
             $redis->moveSet($oldStatusKey,$statusKey,$this->getId());
         }
+    }
+
+    /**
+     * 判断是否新纪录，true新纪录  false旧纪录
+     * @return bool
+     */
+    public function isNewRecord() {
+        return is_null($this->id)?true:false;
     }
 
     public function getContent() {
@@ -200,6 +231,10 @@ class MemoModel extends Model
         return date('Y-m-d H:i:s',$this->dtCreate);
     }
 
+    /**
+     * 
+     * @return array
+     */
     public function getFieldArr() {
         return [
             'title' => $this->title,
@@ -213,19 +248,5 @@ class MemoModel extends Model
         ];
     }
 
-    /**
-     * 写入错误消息
-     * @param $msg
-     */
-    public function setErrMsg($msg) {
-        $this->errorMsg[] = $msg;
-    }
 
-    /**
-     * 获取错误消息
-     * @return array|string
-     */
-    public function getErrMsg() {
-        return empty($this->errorMsg)?'':implode(',',$this->errorMsg);
-    }
 }
