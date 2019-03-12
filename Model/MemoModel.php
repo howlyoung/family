@@ -232,7 +232,7 @@ class MemoModel extends Model
     }
 
     /**
-     * 
+     *
      * @return array
      */
     public function getFieldArr() {

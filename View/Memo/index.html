@@ -4,26 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>login</title>
+    <script type="text/javascript" src="/asset/js/jquery.min.js"></script>
     <script type="text/javascript" src="/asset/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/asset/js/pagination.js"></script>
     <link href="/asset/css/bootstrap.min.css" rel="stylesheet">
     <style>
-
+        body {padding-top:70px;}
     </style>
 </head>
 <body>
-<div class="container layout">
-    {% for value in list %}
-    <div class="list-group">
-        <a href="#" class="list-group-item">
-            <h4 class="list-group-item-heading">{{ value.getTitle }}</h4>
-            <p class="list-group-item-text">
-                {{ value.getContent}}
-                <span class="badge">{{ value.getStatusName }}</span>
-            </p>
-            <p class="list-group-item-text">{{ value.getDtCreate }}</p>
-        </a>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">{{ user.getName }}</a>
+        </div>
+        <div class="nav navbar-nav navbar-right">
+                <a class="navbar-brand" href="#">Operate</a>
+        </div>
+        <div class="nav navbar-nav navbar-right">
+            <a class="navbar-brand" href="#">退出</a>
+        </div>
     </div>
-    {% endfor %}
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3">
+            <p>sdfsd</p>
+        </div>
+        <div class="col-lg-7">
+            {% for value in list %}
+            <div class="list-group">
+                <a href="#" class="list-group-item">
+                    <h4 class="list-group-item-heading">{{ value.getTitle }}</h4>
+                    <p class="list-group-item-text">
+                        {{ value.getContent}}
+                    </p>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <p class="list-group-item-text"><span class="label label-info">{{ value.getStatusName }}</span></p>
+                        </div>
+                        <div class="col-lg-9">
+                            <p class="list-group-item-text text-right">{{ value.getDtCreate }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+            <div id="pagination">
+
+            </div>
+            <!--<nav aria-label="Page navigation" id="pagination">-->
+                <!--&lt;!&ndash;<ul class="pagination">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<a href="#" aria-label="Previous">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<span aria-hidden="true">&laquo;</span>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="#">1</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="#">2</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="#">3</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="#">4</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="#">5</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<a href="#" aria-label="Next">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<span aria-hidden="true">&raquo;</span>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+            <!--</nav>-->
+        </div>
+    </div>
 </div>
 </body>
+<script type="text/javascript">
+    var pagination = $('#pagination');
+    var totalPageCount = 3;
+
+//    var ul = $('<ul class="pagination"></ul>');
+//    ul.append('<li><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
+//    for(var i=1;i<totalPageCount;i++) {
+//        var li = $('<li data-id="'+ i +'"><a href="#">'+ i +'</a></li>');
+//        li.on('click',function(){
+//            var p =  $(this).attr('data-id');
+//            $(location).attr('href','?r=memo/index&p='+p);
+//        });
+//        ul.append(li);
+//    }
+//    ul.append('<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
+//    pagination.append(ul);
+
+    var page = new PagePlug('?r=memo/index&p=',10);
+    page.normal(pagination,{{ p }},3);
+</script>
 </html>

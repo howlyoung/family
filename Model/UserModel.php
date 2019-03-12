@@ -44,4 +44,8 @@ class UserModel extends Model
         }
         return self::table()->select(['*'])->from(self::getTableName())->where($where)->get();
     }
+
+    public function getName() {
+        return $this->name;
+    }
 }

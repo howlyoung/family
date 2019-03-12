@@ -93,24 +93,30 @@ class UserGroupModel extends Model
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getMemberList() {
-        return empty($this->memberList)?self::getRedis()->getAllSortSet($this->memberListId):$this->memberList;
+    public function getMemberList($page=0,$size=10) {
+        return empty($this->memberList)?self::getRedis()->getAllSortSet($this->memberListId,$page,$size):$this->memberList;
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getMemoList() {
-        return empty($this->memoList)?self::getRedis()->getAllSortSet($this->memoListId):$this->memoList;
+    public function getMemoList($page=0,$size=10) {
+        return empty($this->memoList)?self::getRedis()->getAllSortSet($this->memoListId,$page,$size):$this->memoList;
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return UserModel[]
      */
-    public function getMemberModelList() {
-        $this->memberList = $this->getMemberList();
+    public function getMemberModelList($page=0,$size=10) {
+        $this->memberList = $this->getMemberList($page,$size);
         $arr = [];
         foreach($this->memberList as $memberId) {
             $arr[] = UserModel::loadByPk($memberId);
@@ -119,10 +125,12 @@ class UserGroupModel extends Model
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return MemoModel[]
      */
-    public function getMemoModelList() {
-        $this->memoList = $this->getMemoList();
+    public function getMemoModelList($page=0,$size=10) {
+        $this->memoList = $this->getMemoList($page,$size);
         $arr = [];
         foreach($this->memoList as $memoId) {
             $arr[] = MemoModel::loadByPk($memoId);
@@ -190,8 +198,8 @@ class UserGroupModel extends Model
         }
         $this->key = $key;
         $this->id = $id;
-        $this->memberList = $this->getMemberList();
-        $this->memoList = $this->getMemoList();
+//        $this->memberList = $this->getMemberList();
+//        $this->memoList = $this->getMemoList();
         return $this;
     }
 
@@ -200,8 +208,9 @@ class UserGroupModel extends Model
      * @return bool
      */
     public function addMember($memberId) {  //参数可考虑使用user对象
-        if(!in_array($memberId,$this->memberList)) {
-            array_push($this->memberList,$memberId);
+        $list = $this->getMemberList();
+        if(!in_array($memberId,$list)) {
+//            array_push($this->memberList,$memberId);
             $res = self::getRedis()->setSortSet($this->memberListId,$memberId,time());
             return (0<$res);
         } else {
@@ -215,8 +224,9 @@ class UserGroupModel extends Model
      * @return bool
      */
     public function addMemo($memoId) {  //参数可考虑使用memo对象
-        if(!in_array($memoId,$this->memoList)) {
-            array_push($this->memoList,$memoId);
+        $list = $this->getMemoList();
+        if(!in_array($memoId,$list)) {
+//            array_push($this->memoList,$memoId);
             $res = self::getRedis()->setSortSet($this->memoListId,$memoId,time());
             return (0<$res);
         } else {

@@ -126,8 +126,19 @@ class DbRedis implements DbInterface
         return $this->conn->zScore($key,$k);
     }
 
-    public function getAllSortSet($key) {
-        return $this->conn->zRevRangeByScore($key,'+inf','-inf');
+    /**
+     * 获取有序集合元素，带分页
+     * @param $key
+     * @param int $p
+     * @param int $size
+     * @return array
+     */
+    public function getAllSortSet($key,$p=0,$size=15) {
+        $option = [];
+        if(0 < $p) {
+            $option['limit'] = [($p-1)*$size,$size];
+        }
+        return $this->conn->zRevRangeByScore($key,'+inf','-inf',$option);
     }
 
     /**

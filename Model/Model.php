@@ -45,4 +45,6 @@ class Model
     public function getErrMsg() {
         return empty($this->errorMsg)?'':implode(',',$this->errorMsg);
     }
+
+
 }

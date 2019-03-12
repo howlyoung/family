@@ -76,6 +76,10 @@ class User
         session_destroy();
     }
 
+    public function getName() {
+        return $this->model->getName();
+    }
+
     /**
      * @param \Model\MemoModel $memoModel
      * @return bool
