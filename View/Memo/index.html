@@ -93,7 +93,7 @@
 //    ul.append('<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
 //    pagination.append(ul);
 
-    var page = new PagePlug('?r=memo/index&p=',10);
-    page.normal(pagination,{{ p }},3);
+    var page = new PagePlug('?r=memo/index&p=',8,{{ size}});
+    page.normal(pagination,{{ p }});
 </script>
 </html>

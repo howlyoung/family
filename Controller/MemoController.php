@@ -17,11 +17,13 @@ class MemoController extends BaseController
         $group = UserGroupModel::loadById($gid);
         $user = \main::getUser();
 
-        $list = $group->getMemoModelList($p,5);
+        $size = 1;
+        $list = $group->getMemoModelList($p,$size);
         return $this->render('index.html',[
             'list' => $list,
             'user' => $user,
             'p' => $p,
+            'size' => $size,
         ]);
     }
 }
