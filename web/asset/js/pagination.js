@@ -30,47 +30,35 @@ var PagePlug = function(url,totalCount,size) {
             }
         };
 
-        PagePlug.prototype.processMethodNormal = function() {
-            var p =  parseInt($(this).attr('data-id'));
-            $(location).attr('href',url + p);
-        };
-
         /**
          *
          * @param area  需要插入分页的dom对象
          * @param curPage 当前页码
          */
         PagePlug.prototype.normal = function(area,curPage) {
-            var url = this.url;
             var nav = $('<nav aria-label="Page navigation"></nav>');
             var ul = $('<ul class="pagination"></ul>');
-            var style = '';
-            if(curPage > 1) {
-                var prev = $('<li data-id="'+ (curPage - 1) +'"><a href="#"  aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
-                prev.on('click',this.processMethodNormal);
-            } else {
-                var prev = $('<li class="disabled" data-id="'+ curPage +'"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
+            var disabledStyle = 'class="disabled"';
 
-            }
+            var prePage = (curPage > 1)?(curPage - 1):1;
+            var style = (curPage > 1)?'':disabledStyle;
+
+            var prev = $('<li '+ style +'><a href="'+ this.url + prePage +'" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
+
             ul.append(prev);
             var firsPage = this.getGroupFirstPage(curPage);
             var endPage = this.getGroupEndPage(curPage);
             for(var i=firsPage;i<=endPage;i++) {
-                if(i == curPage) {
-                    style = 'class = "active"';
-                } else {
-                    style = '';
-                }
-                var li = $('<li '+ style +' data-id="'+ i +'"><a href="#">'+ i +'</a></li>');
-                li.on('click',this.processMethodNormal);
+                style = (i == curPage)?'class = "active"':'';
+                var li = $('<li '+ style +'><a href="'+ this.url + i +'">'+ i +'</a></li>');
                 ul.append(li);
             }
-            if(curPage < this.totalPageCount) {
-                var next = $('<li data-id="'+ (curPage+1) +'"><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
-                next.on('click',this.processMethodNormal);
-            } else {
-                var next = $('<li class="disabled" data-id="'+ curPage +'"><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
-            }
+
+            var nextPage = (curPage < this.totalPageCount)?(curPage + 1):curPage;
+            style = (curPage < this.totalPageCount)?'':disabledStyle;
+
+            var next = $('<li '+ style +'><a href="'+ this.url + nextPage +'" aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>');
+
             ul.append(next);
             nav.append(ul);
             area.append(nav);

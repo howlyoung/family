@@ -6,6 +6,9 @@ class BaseController extends \base\Controller
 
     protected $user;    //登录用户对象
 
+    protected $loginVerifyExceptionAction; //不需要登录验证的方法
+
+
     public function __construct($request,$respone) {
         /** @var \core\request\request $request */
         $this->request = $request;
@@ -20,6 +23,13 @@ class BaseController extends \base\Controller
         if(file_exists($viewPath)) {
             \Twig_Autoloader::register();
             $this->templeteLoader = new \Twig_Loader_Filesystem($viewPath);
+        }
+    }
+
+    public function beforeAction($action) {
+        if(!$this->checkIsNeedLogin($action)) {
+            echo '需要登录';
+            exit;
         }
     }
 
@@ -75,5 +85,16 @@ class BaseController extends \base\Controller
     public function postParam($name,$default=null) {
         $res =  $this->request->postParams($name);
         return is_null($res)?$default:$res;
+    }
+
+    public function checkIsNeedLogin($action) {
+        if(!property_exists(get_called_class(),'loginVerifyProperty')) {
+            if(!is_array($this->loginVerifyExceptionAction)||!in_array($action,$this->loginVerifyExceptionAction)) {
+                if(is_null(\main::getUser())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

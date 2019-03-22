@@ -13,6 +13,7 @@ use Model\MemoModel;
 
 class UserController extends BaseController
 {
+    protected $loginVerifyProperty;
 
     public function login() {
         return $this->render('login.html',[]);

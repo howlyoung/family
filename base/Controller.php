@@ -5,32 +5,64 @@ namespace base;
 class Controller
 {
     /** @var  \core\request\request $request */
-    protected $request; //请求对象
+    protected $request; //璇锋眰瀵硅薄
     /** @var  \core\request\Respone $respone */
-    protected $respone; //应答对象
+    protected $respone; //搴旂瓟瀵硅薄
 
-    protected $templeteLoader; //模板加载器
+    protected $templeteLoader; //妯℃澘瀵硅薄
 
-
-    protected $layout;  //布局对象
+    protected $layout;  //甯冨眬瀵硅薄
 
     protected function setLayout($layout) {
         $this->layout = $layout;
     }
 
-    /**
-     * 执行方法前调用
-     * @param $action
-     */
-    public function beforeAction($action) {
+    public static function createController($controllerId) {
+        $controllerClassName = '\\Controller\\'.$controllerId.'Controller';
+
 
     }
 
     /**
-     * 执行方法后调用
+     *
      * @param $action
+     * @return bool
      */
-    public function afterAction($action) {
+    public function beforeAction($action) {
+        return true;
+    }
+
+    /**
+     * 执
+     * @param $action
+     * @param $result
+     */
+    public function afterAction($action,$result) {
+        return $result;
+    }
+
+
+    public function run($action) {
+        $action = $this->request->getAction();
+        if($this->beforeAction($action)) {
+            $res = $this->$action();
+            $res = $this->afterAction($action,$res);
+        } else {
+            $res = null;
+        }
+        $this->respone($res);
+    }
+
+    public function respone($res) {
+
+    }
+
+    /**
+     * 娓叉煋椤甸潰
+     * @param $path
+     * @param $params
+     */
+    public function render($path,$params) {
 
     }
 
