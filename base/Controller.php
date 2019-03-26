@@ -23,6 +23,10 @@ class Controller
 
     }
 
+    public function __construct() {
+
+    }
+
     /**
      *
      * @param $action

@@ -47,6 +47,12 @@ class request
 
     }
 
+    public function createController() {
+        $objName = '\\Controller\\'.$this->controller.'Controller';
+        /** @var \Controller\BaseController $controller */
+        $controller = new $objName($this,new Respone());
+    }
+
     public function getController() {
         return $this->controller;
     }

@@ -41,7 +41,7 @@ class main
         ob_start();
         $controller->beforeAction($action);
         $res = $controller->$action();
-        $controller->afterAction($action);
+//        $controller->afterAction($action);
         $controller->respone($res);
         //输出内容，结束缓冲
         ob_end_flush();
