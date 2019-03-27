@@ -13,7 +13,7 @@ class DITest
 {
     protected $t;
 
-    public function __construct(\component\Module\DIdpTest $t) {
+    public function __construct($t,$a) {
         $this->t = $t;
     }
 }
