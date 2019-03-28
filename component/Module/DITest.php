@@ -12,8 +12,10 @@ namespace component\Module;
 class DITest
 {
     protected $t;
+    protected $a;
 
-    public function __construct($t,$a) {
+    public function __construct($t,DIInterface $a) {
         $this->t = $t;
+        $this->a = $a;
     }
 }
