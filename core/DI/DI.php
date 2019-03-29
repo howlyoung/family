@@ -19,23 +19,15 @@ class DI
      * 注册全局依赖关系
      * @param $alias
      * @param $dependence
+     * @param $params
      */
-    public function set($alias,$dependence) {
-        if(is_string($dependence)) { //约定$alias要生成的类，可用于依赖接口或者抽象类的情况
-            $this->_map[$alias] = $dependence;
-        } elseif(is_array($dependence)) {   //设置需要依赖的类需要的参数
-            if(count($dependence)>1&&isset($dependence['class'])) {
-                $this->_map[$alias] = $dependence['class'];
-                unset($dependence['class']);
-                $arrValue = current($dependence);
-            } else {
-                $this->_map[$alias] = $alias;
-                $arrValue = $dependence;
-            }
-            $this->_dependenceParam[$alias] = $arrValue;
-        } elseif(empty($dependence)) {
+    public function set($alias,$dependence,$params=[]) {
+        if(empty($dependence)) {
+            $this->_map[$alias] = $alias;
+        } else {
             $this->_map[$alias] = $dependence;
         }
+        $this->_dependenceParam[$alias] = $params;
     }
 
     /**
@@ -47,10 +39,7 @@ class DI
             return $this->_dependence[$class];
         }
 
-        //此处等于依赖了_map，本方法应该专注处理依赖，对class别名的处理应该交给上层的方法
-        $className = isset($this->_map[$class])?$this->_map[$class]:$class; //查看是否设置了依赖，如果设置了则取_map中存储的类名作为反射类的参数
-        $reflection = new \ReflectionClass($className);
-
+        $reflection = new \ReflectionClass($class);
         $constructor = $reflection->getConstructor();
 
         $this->_reflection[$class] = $reflection;
@@ -75,7 +64,7 @@ class DI
             if($d instanceof \core\Instance) {
                 //获取对象
                 if(null != ($id = $d->getId())) {
-                    $dependence[$key] = $this->build($id);
+                    $dependence[$key] = $this->get($id);
                 } else {
                     if(null != $reflection) {    //非对象类型的依赖，如果没有默认值或者初始值，则抛出异常
                         throw new \Exception('类'.$reflection->getName().'缺少参数'.$id);
@@ -86,8 +75,20 @@ class DI
         return $dependence;
     }
 
+    /**
+     * @param $class
+     * @param array $params
+     * @param array $property
+     * @return object
+     * @throws \Exception
+     */
     public function get($class,$params=[],$property=[]) {
-        return [];
+        $map = $this->_map;
+        if(!isset($map[$class])) {
+            return $this->build($class,$params,$property);
+        } else {
+            return $this->build($map[$class],array_merge($this->_dependenceParam[$class],$params),$property);
+        }
     }
 
     /**
@@ -97,17 +98,16 @@ class DI
      * @return object
      * @throws \Exception
      */
-    public function build($class,$params=[],$property=[]) {
+    protected function build($class,$params=[],$property=[]) {
         /** @var $reflection \ReflectionClass  */
         list($reflection,$dependence) = $this->getDependence($class);
 
         foreach($dependence as $k=>$v) {
             if(isset($params[$k])) {
                 $dependence[$k] = $params[$k];
-            } elseif(isset($this->_dependenceParam[$class][$k])) {
-                $dependence[$k] = $this->_dependenceParam[$class][$k];
             }
         }
+
         $dependence = $this->resolveDependence($dependence,$reflection);
 
         if(!$reflection->isInstantiable()) {
