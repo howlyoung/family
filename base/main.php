@@ -23,9 +23,33 @@ class main
     public static function getMain($config) {
         if(empty(self::$obj)) {
             self::$obj = new self();
-            self::$config = $config;
+            self::$obj->initConfig($config);
         }
         return self::$obj;
+    }
+
+    /**
+     * 获得容器
+     * @return null
+     */
+    public static function getContainer() {
+        return isset(self::$map['container'])?self::$map['container']:null;
+    }
+
+    protected static function setContainer($container) {
+        self::$map['container'] = $container;
+    }
+
+    protected function initConfig($config) {
+        self::$config = $config;
+        if(!self::getContainer()) {    //初始化DI容器
+            self::setContainer(new \core\DI\DI());
+        }
+
+        if(!isset(self::$config['exception'])) {
+            $exceptionHandle = self::getContainer()->get('component\Exception\BaseException');
+            $exceptionHandle->register();
+        }
     }
 
     public function run() {
@@ -79,6 +103,8 @@ class main
             return $db;
         }
     }
+
+
 
     /**
      * 获取配置    $key = 'key.key1.key2'

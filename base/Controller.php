@@ -1,5 +1,7 @@
 <?php
 namespace base;
+use core\request\Respone;
+
 /**
  */
 class Controller
@@ -23,7 +25,7 @@ class Controller
 
     }
 
-    public function __construct() {
+    public function __construct($request) {
 
     }
 
@@ -53,6 +55,12 @@ class Controller
             $res = $this->afterAction($action,$res);
         } else {
             $res = null;
+        }
+        if($res instanceof Respone) {
+            return $res;
+        } else {
+            $respone = new Respone();
+
         }
         $this->respone($res);
     }

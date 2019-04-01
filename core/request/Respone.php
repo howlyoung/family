@@ -1,6 +1,6 @@
 <?php
 /**
-* 处理请求后的返回
+
  */
 
 namespace core\request;
@@ -8,16 +8,14 @@ namespace core\request;
 
 class Respone
 {
-    protected $type;    //应答类型
-    protected $content; //应答内容
+    protected $type;
+    protected $content;
 
     public function setContent($content) {
         $this->content = $content;
     }
 
-    /**
-     * 将应答加入到输出缓冲
-     */
+
     public function addContentToBuffer() {
         switch(gettype($this->content)) {
             case 'array':
@@ -33,7 +31,7 @@ class Respone
                 echo $this->content;
                 break;
             default:
-                //不支持类型，无输出
+
                 break;
         }
     }
