@@ -9,12 +9,7 @@ class BaseController extends \base\Controller
     protected $loginVerifyExceptionAction; //不需要登录验证的方法
 
 
-    public function __construct($request,$respone) {
-        /** @var \core\request\request $request */
-        $this->request = $request;
-        /** @var \core\request\Respone $respone */
-        $this->respone = $respone;
-
+    public function __construct() {
         $this->user = \main::getUser();
 
         $controllerName = str_replace('Controller','',basename(get_class($this)));
@@ -31,11 +26,7 @@ class BaseController extends \base\Controller
             echo '需要登录';
             exit;
         }
-    }
-
-    public function respone($res) {
-        $this->respone->setContent($res);
-        $this->respone->addContentToBuffer();
+        return true;
     }
 
     public function render($templete,$params) {
@@ -73,7 +64,7 @@ class BaseController extends \base\Controller
      * @return null
      */
     public function getParam($name,$default=null) {
-        $res =  $this->request->getParams($name);
+        $res =  $this->getRequest()->getParams($name);
         return is_null($res)?$default:$res;
     }
 
@@ -83,7 +74,7 @@ class BaseController extends \base\Controller
      * @return null
      */
     public function postParam($name,$default=null) {
-        $res =  $this->request->postParams($name);
+        $res =  $this->getRequest()->postParams($name);
         return is_null($res)?$default:$res;
     }
 

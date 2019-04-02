@@ -14,6 +14,7 @@ class DI
     protected $_reflection;     //反射对象数组
     protected $_map;            //存储注册的依赖对象
     protected $_dependenceParam;//依赖的参数
+    protected $_singleton;      //单例对象数组
 
     /**
      * 注册全局依赖关系
@@ -27,7 +28,11 @@ class DI
         } else {
             $this->_map[$alias] = $dependence;
         }
-        $this->_dependenceParam[$alias] = $params;
+        if(is_object($params)) { //对象则保存到单例
+            $this->_singleton[$alias] = $params;
+        } else {
+            $this->_dependenceParam[$alias] = $params;
+        }
     }
 
     /**
@@ -87,7 +92,11 @@ class DI
         if(!isset($map[$class])) {
             return $this->build($class,$params,$property);
         } else {
-            return $this->build($map[$class],array_merge($this->_dependenceParam[$class],$params),$property);
+            if(isset($this->_singleton[$class])) {
+                return $this->_singleton[$class];
+            } else {
+                return $this->build($map[$class],array_merge($this->_dependenceParam[$class],$params),$property);
+            }
         }
     }
 
@@ -111,7 +120,7 @@ class DI
         $dependence = $this->resolveDependence($dependence,$reflection);
 
         if(!$reflection->isInstantiable()) {
-            throw new \Exception('不可实例化');
+            throw new \Exception($reflection->getName().'不可实例化');
         }
 
         $obj =  $reflection->newInstanceArgs($dependence);

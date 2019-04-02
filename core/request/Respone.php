@@ -11,6 +11,7 @@ class Respone
     protected $type;
     protected $content;
 
+
     public function setContent($content) {
         $this->content = $content;
     }
@@ -34,5 +35,30 @@ class Respone
 
                 break;
         }
+    }
+
+    public function send() {
+        ob_start();
+
+        switch(gettype($this->content)) {
+            case 'array':
+                print_r($this->content);
+                break;
+            case 'object':
+                var_dump($this->content);
+                break;
+            case 'string':
+            case 'integer':
+            case 'double':
+            case 'boolean':
+                echo $this->content;
+                break;
+            default:
+
+                break;
+        }
+
+        ob_end_flush();
+
     }
 }

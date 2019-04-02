@@ -13,38 +13,18 @@ class request
     protected $controller;
     protected $action;
 
-    public static $obj = null;
+    public function __construct() {
+        $queryString = $_SERVER['QUERY_STRING'];
+        $queryArr = explode('&', $queryString);
 
-    private function __construct() {
-
-    }
-
-    /**
-     * @return request|null
-     * @throws \Exception
-     */
-    public static function analysisRequest()
-    {
-        if(empty(self::$obj)) {
-            $queryString = $_SERVER['QUERY_STRING'];
-            $queryArr = explode('&', $queryString);
-
-            if (!is_array($queryArr)) {
-                throw new \Exception('');
-            }
-            $r = new self();
-            self::$obj = $r;
-            //设置控制器和方法变量
-//            $caArr = explode('/',$queryArr[0]);
-            $r->formatControllerAction($queryArr);
-
-            $r->setMethod($_SERVER['REQUEST_METHOD']);
-            $r->setRequestParams();
-            return $r;
-        } else {
-            return self::$obj;
+        if (!is_array($queryArr)) {
+            throw new \Exception('');
         }
 
+        $this->formatControllerAction($queryArr);
+
+        $this->setMethod($_SERVER['REQUEST_METHOD']);
+        $this->setRequestParams();
     }
 
     public function createController() {

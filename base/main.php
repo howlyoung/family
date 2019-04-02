@@ -30,7 +30,7 @@ class main
 
     /**
      * 获得容器
-     * @return null
+     * @return core\DI\DI
      */
     public static function getContainer() {
         return isset(self::$map['container'])?self::$map['container']:null;
@@ -52,23 +52,33 @@ class main
         }
     }
 
+    protected function getRequest() {
+        $request = self::getContainer()->get('core\request\request');
+        self::getContainer()->set('core\request\request','',$request);  //注册请求对象为单例
+        return $request;
+    }
+
     public function run() {
-        $request = request::analysisRequest();
+        $request = $this->getRequest();
         session_start();    //开启session
         $controllerName = $request->getController();
         $objName = '\\Controller\\'.$controllerName.'Controller';
-        /** @var \Controller\BaseController $controller */
-        $controller = new $objName($request,new Respone());
-        $action = $request->getAction();
 
-        //开启输出缓冲
-        ob_start();
-        $controller->beforeAction($action);
-        $res = $controller->$action();
-//        $controller->afterAction($action);
-        $controller->respone($res);
-        //输出内容，结束缓冲
-        ob_end_flush();
+        $controller = self::getContainer()->get($objName);
+        $respone = $controller->run($request->getAction());
+        $respone->send();
+//        /** @var \Controller\BaseController $controller */
+//        $controller = new $objName($request,new Respone());
+//        $action = $request->getAction();
+//
+//        //开启输出缓冲
+//        ob_start();
+//        $controller->beforeAction($action);
+//        $res = $controller->$action();
+////        $controller->afterAction($action);
+//        $controller->respone($res);
+//        //输出内容，结束缓冲
+//        ob_end_flush();
     }
 
     /**

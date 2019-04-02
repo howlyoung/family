@@ -25,8 +25,12 @@ class Controller
 
     }
 
-    public function __construct($request) {
+    public function __construct() {
 
+    }
+
+    public function getRequest() {
+        return \main::getContainer()->get('core\request\request');
     }
 
     /**
@@ -49,24 +53,19 @@ class Controller
 
 
     public function run($action) {
-        $action = $this->request->getAction();
         if($this->beforeAction($action)) {
             $res = $this->$action();
             $res = $this->afterAction($action,$res);
         } else {
-            $res = null;
+            throw new \Exception('未获得访问该方法的权限!');
         }
         if($res instanceof Respone) {
             return $res;
         } else {
             $respone = new Respone();
-
+            $respone->setContent($res);
+            return $respone;
         }
-        $this->respone($res);
-    }
-
-    public function respone($res) {
-
     }
 
     /**
