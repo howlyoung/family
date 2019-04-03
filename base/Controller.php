@@ -33,6 +33,12 @@ class Controller
         return \main::getContainer()->get('core\request\request');
     }
 
+
+    public function getViewPath($path) {
+        $controllerName = str_replace('Controller','',basename(get_class($this)));
+        return '../View/'.$controllerName.'/'.$path.'.php';
+    }
+
     /**
      *
      * @param $action
@@ -68,13 +74,18 @@ class Controller
         }
     }
 
+    public function getView() {
+        return \main::getContainer()->get('base\view');
+    }
+
     /**
      * 渲染页面
      * @param $path
      * @param $params
      */
     public function render($path,$params) {
-
+        $viewPath = $this->getViewPath($path);
+        return $this->getView()->render($viewPath,$params);
     }
 
 }
