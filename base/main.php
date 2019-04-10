@@ -60,55 +60,38 @@ class main
 
     public function run() {
         $request = $this->getRequest();
-        session_start();    //开启session
+        session_start();    //开启session，优化!
         $controllerName = $request->getController();
-        $objName = '\\Controller\\'.$controllerName.'Controller';
+        $objName = '\\Controller\\'.$controllerName.'Controller';   //优化!
 
         $controller = self::getContainer()->get($objName);
         $respone = $controller->run($request->getAction());
         $respone->send();
-//        /** @var \Controller\BaseController $controller */
-//        $controller = new $objName($request,new Respone());
-//        $action = $request->getAction();
-//
-//        //开启输出缓冲
-//        ob_start();
-//        $controller->beforeAction($action);
-//        $res = $controller->$action();
-////        $controller->afterAction($action);
-//        $controller->respone($res);
-//        //输出内容，结束缓冲
-//        ob_end_flush();
+
     }
 
     /**
      * 获取数据库连接，如果没有，则连接
      * @param string $dbName
-     * @return Db
+     * @return object
+     * @throws Exception
      */
     public static function getDb($dbName='db') {
         if(isset(self::$map['db'][$dbName])) {
             return self::$map['db'][$dbName];
         } else {
             $config = self::$config['db'][$dbName];
-            try{
-                $db = new $config['class']();
-                if(empty($db)||!($db instanceof \core\Db\DbInterface)) {
-                    throw new Exception($dbName.'指定的数据处理类不正确!');
-                }
-            } catch(\Exception $e) {
-                echo $e->getMessage();
-                exit;
+            $db = self::getContainer()->get($config['class']);
+            if(empty($db)||!($db instanceof \core\Db\DbInterface)) {
+                throw new Exception($dbName.'指定的数据处理类不正确!');
             }
+
             $d = $db->getDb($config);
-            try{
-                if(empty($d)) {
-                    throw new Exception($dbName.'数据库配置不正确');
-                }
-            } catch(\Exception $e) {
-                echo $e->getMessage();
-                exit;
+
+            if(empty($d)) {
+                throw new Exception($dbName.'数据库配置不正确');
             }
+
             self::$map['db'][$dbName] = $d;
             return $db;
         }

@@ -11,51 +11,21 @@ class BaseController extends \base\Controller
 
     public function __construct() {
         $this->user = \main::getUser();
-        $viewPath = $this->getViewPath();
-        //加载模板引擎
-        if(file_exists($viewPath)) {
-            $this->templeteLoader = new \Twig_Loader_Filesystem($viewPath);
-        }
     }
 
 
 
     public function beforeAction($action) {
-        if(!$this->checkIsNeedLogin($action)) {
-            echo '需要登录';
-            exit;
+        if(parent::beforeAction($action)) {
+            if(!$this->checkIsNeedLogin($action)) {
+                throw new \Exception('需要登录!');
+            }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
-//    public function render($templete,$params) {
-//        $tmp = new \Twig_Environment($this->templeteLoader,[]);
-//
-//        $content =  $tmp->render($templete,$params);
-//
-//        if(!empty($this->layout)) {
-//            //增加布局文件的路径
-//            $layoutPath = \main::getConfig('layout.path');
-//            $layoutAlias = \main::getConfig('layout.alias');
-//            try {
-//                if(!$layoutAlias||!$layoutPath) {
-//                    throw new \Exception('找不到布局配置');
-//                }
-//                if(!file_exists($layoutPath.'/'.$this->layout)) {
-//                    throw new \Exception('找不到布局文件');
-//                }
-//            } catch(\Exception $e) {
-//                echo $e->getMessage();
-//                exit;
-//            }
-//            $this->templeteLoader->addPath($layoutPath,$layoutAlias);
-//
-//            $alias = '@'.$layoutAlias;
-//            return $tmp->render($alias.'/'.$this->layout,['content'=>$content]);
-//        } else {
-//            return $content;
-//        }
-//    }
 
     /**
      * @param $name
@@ -77,10 +47,15 @@ class BaseController extends \base\Controller
         return is_null($res)?$default:$res;
     }
 
+    /**
+     * 是否需要登录，true不用，false用
+     * @param $action
+     * @return bool
+     */
     public function checkIsNeedLogin($action) {
         if(!property_exists(get_called_class(),'loginVerifyProperty')) {
             if(!is_array($this->loginVerifyExceptionAction)||!in_array($action,$this->loginVerifyExceptionAction)) {
-                if(is_null(\main::getUser())) {
+                if(is_null($this->user)) {
                     return false;
                 }
             }

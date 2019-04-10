@@ -21,6 +21,7 @@ class View
         }
         extract($params);
         ob_start();
+        ob_implicit_flush(false);
         include($fileName);
         $content = ob_get_contents();
         ob_end_clean();

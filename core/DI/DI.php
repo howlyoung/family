@@ -40,27 +40,25 @@ class DI
      * @return array
      */
     protected function getDependence($class) {
-        if(isset($this->_reflection[$class])) {
-            return $this->_dependence[$class];
-        }
+        if(!isset($this->_reflection[$class])) {
+            $reflection = new \ReflectionClass($class);
 
-        $reflection = new \ReflectionClass($class);
-        $constructor = $reflection->getConstructor();
+            $constructor = $reflection->getConstructor();
 
-        $this->_reflection[$class] = $reflection;
-        $this->_dependence[$class] = [];
+            $this->_reflection[$class] = $reflection;
+            $this->_dependence[$class] = [];
 
-        if($constructor) {
-            foreach($constructor->getParameters() as $key => $param) {
-                if($param->isOptional()) {  //是否默认参数
-                    $this->_dependence[$class][$param->getName()] = $param->getDefaultValue();
-                } else {
-                    $typeClass = $param->getClass();
-                    $this->_dependence[$class][$param->getName()] = \core\Instance::of(($typeClass == null ? null:$typeClass->getName()));
+            if($constructor) {
+                foreach($constructor->getParameters() as $key => $param) {
+                    if($param->isOptional()) {  //是否默认参数
+                        $this->_dependence[$class][$param->getName()] = $param->getDefaultValue();
+                    } else {
+                        $typeClass = $param->getClass();
+                        $this->_dependence[$class][$param->getName()] = \core\Instance::of(($typeClass == null ? null:$typeClass->getName()));
+                    }
                 }
             }
         }
-
         return [$this->_reflection[$class],$this->_dependence[$class]];
     }
 

@@ -19,28 +19,46 @@ class Controller
         $this->layout = $layout;
     }
 
-    public static function createController($controllerId) {
-        $controllerClassName = '\\Controller\\'.$controllerId.'Controller';
-
-
-    }
-
     public function __construct() {
 
     }
 
+    /**\
+     * 获取request对象
+     * @return \core\request\request|object
+     */
     public function getRequest() {
-        return \main::getContainer()->get('core\request\request');
-    }
-
-
-    public function getViewPath($path) {
-        $controllerName = str_replace('Controller','',basename(get_class($this)));
-        return '../View/'.$controllerName.'/'.$path.'.php';
+        if($this->request == null) {
+            $this->request = \main::getContainer()->get('core\request\request');
+        }
+        return $this->request;
     }
 
     /**
-     *
+     * 获取view所在文件夹,view的位置应该使用配置,优化!
+     * @return string
+     */
+    public function getViewPath() {
+        $controllerName = str_replace('Controller','',basename(get_class($this)));
+        return '../View/'.$controllerName.'/';
+    }
+
+    /**
+     * 获取view文件，应该在配置中约定好view文件后缀名,优化!
+     * @param $viewName
+     * @return string
+     */
+    public function getViewFile($viewName) {
+        $path = $this->getViewPath();
+        $file = $path.$viewName.'.php';
+        if(!file_exists($file)) {
+            $file = $path.$viewName.'.html';
+        }
+        return $file;
+    }
+
+    /**
+     * 访问方法前执行，主要判断是否可以访问
      * @param $action
      * @return bool
      */
@@ -74,17 +92,21 @@ class Controller
         }
     }
 
+    /**
+     * 获取view对象
+     * @return object
+     */
     public function getView() {
         return \main::getContainer()->get('base\view');
     }
 
     /**
      * 渲染页面
-     * @param $path
+     * @param $name
      * @param $params
      */
-    public function render($path,$params) {
-        $viewPath = $this->getViewPath($path);
+    public function render($name,$params) {
+        $viewPath = $this->getViewFile($name);
         return $this->getView()->render($viewPath,$params);
     }
 

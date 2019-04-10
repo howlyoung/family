@@ -10,7 +10,9 @@ class BaseException extends \core\Exception\ExceptionHandle
 {
 
     public function handleException($exception) {
-        echo $exception->getMessage();
+//        echo $exception->getMessage();
+        $view = \main::getContainer()->get('base\view');
+        echo $view->render('../View/Error/common.php',['message'=>$exception->getMessage()]);
     }
 
     public function handleError($exception) {

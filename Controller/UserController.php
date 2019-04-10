@@ -16,7 +16,7 @@ class UserController extends BaseController
     protected $loginVerifyProperty;
 
     public function login() {
-        return $this->render('login.html',[]);
+        return $this->render('login',[]);
     }
 
     public function doLogin() {
@@ -43,7 +43,7 @@ class UserController extends BaseController
 
     public function cMemo() {
         $groupList = $this->user->getGroupList();
-        return $this->render('create-memo.html',[
+        return $this->render('create-memo',[
             'groupList' => $groupList,
             'statusList'=> MemoModel::statusNameList(),
         ]);
