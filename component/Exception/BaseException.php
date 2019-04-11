@@ -1,5 +1,7 @@
 <?php
 namespace component\Exception;
+use core\request\Respone;
+
 /**
  * Created by PhpStorm.
  * User: yanghao
@@ -9,13 +11,25 @@ namespace component\Exception;
 class BaseException extends \core\Exception\ExceptionHandle
 {
 
+    /**
+     * @param \Exception $exception
+     */
     public function handleException($exception) {
-//        echo $exception->getMessage();
         $view = \main::getContainer()->get('base\view');
-        echo $view->render('../View/Error/common.php',['message'=>$exception->getMessage()]);
+        $trace = $exception->getTrace();    //获取错误的堆栈信息
+        $respone = new Respone();
+        $result = $view->render($this->getViewPath(),['message'=>$exception->getMessage(),'trace'=>$trace]);
+        $respone->setContent($result);
+        $respone->send();
     }
 
     public function handleError($exception) {
 
     }
+
+    protected function getViewPath() {
+        return VIEW_PATH.'/Error/common.php';
+    }
+
+
 }

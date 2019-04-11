@@ -40,7 +40,7 @@ class Controller
      */
     public function getViewPath() {
         $controllerName = str_replace('Controller','',basename(get_class($this)));
-        return '../View/'.$controllerName.'/';
+        return VIEW_PATH.$controllerName.'/';
     }
 
     /**

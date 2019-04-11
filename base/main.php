@@ -132,4 +132,5 @@ class main
         $uid = self::getUserId();
         return User::loadById($uid);
     }
+
 }

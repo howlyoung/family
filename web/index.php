@@ -1,11 +1,11 @@
 <?php
-use core\request\request;
+
+define('MAIN_PATH','..'.DIRECTORY_SEPARATOR);   //主目录
+define('VIEW_PATH',MAIN_PATH.'View'.DIRECTORY_SEPARATOR);       //视图文件夹
 
 include('..'.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'base.php');
 include('..'.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'main.php');
 $config = include('..'.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'config.php');
-require_once('../vendor/twig/twig/lib/Twig/Autoloader.php');
-\Twig_Autoloader::register();
 
 main::getMain($config)->run();
 
