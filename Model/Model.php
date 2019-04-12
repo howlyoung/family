@@ -18,8 +18,6 @@ class Model
     }
 
     public static function getTableName() {
-//        $className = get_called_class();
-//        return strtolower(str_replace('\\','',str_replace('Model','',$className)));//优化
         return static::TABLE_NAME;
     }
 
