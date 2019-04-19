@@ -17,7 +17,6 @@ class QueryBuilder
     protected $form;
 
     protected $db;      //数据库连接
-    protected $model;   //想要操作的Model
 
     public function test() {
         print_r($this->where);
@@ -25,12 +24,19 @@ class QueryBuilder
     }
 
     public function __construct() {
-
+        $this->init();
     }
 
-    public function init($db,$modelName) {
-        $this->db = $db;
-        $this->model = $modelName;
+    /**
+     * 获取数据库方法，用于执行语句
+     * @return object
+     * @throws \Exception
+     */
+    protected function getDb() {
+        return \main::getDb();
+    }
+
+    protected function init() {
         $this->where = '';
         $this->params = [];
         $this->select = [];
@@ -255,11 +261,11 @@ class QueryBuilder
     }
 
     public function get() {
-        return $this->db->queryObject($this->model,$this->getSql(),$this->params);
+        return $this->getDb()->queryAll($this->getSql(),$this->params);
     }
 
     public function getArray() {
-        return $this->db->queryAll($this->model,$this->getSql(),$this->params);
+        return $this->getDb()->queryAll($this->getSql(),$this->params);
     }
 
     /**

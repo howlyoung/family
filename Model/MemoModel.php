@@ -6,8 +6,11 @@
 namespace Model;
 
 
-class MemoModel extends Model
+use core\Model\RedisModel\RedisModel;
+
+class MemoModel extends RedisModel
 {
+
     protected $id;
     protected $groupId;         //所在群组id
     protected $title;           //标题
@@ -47,7 +50,7 @@ class MemoModel extends Model
      * @return MemoModel|null
      */
     public static function loadByKey($key) {
-        $data = self::getRedis()->getHashAll($key);
+        $data = self::table()->getHashAll($key);
         if(empty($data)) {
             return null;
         }
@@ -121,7 +124,7 @@ class MemoModel extends Model
      * @return int
      */
     public static function getMaxId() {
-        $id = self::getRedis()->getString(static::INCREMENT_COUNT_KEY);
+        $id = self::table()->getString(static::INCREMENT_COUNT_KEY);
         return empty($id)?0:intval($id);
     }
 
@@ -159,7 +162,6 @@ class MemoModel extends Model
      * @return bool
      */
     public function save() {
-        $redis = self::getRedis();
         if($this->isNewRecord()) { //id为空，表示为新记录
             $this->id = self::getMaxId();
             $userGroup = UserGroupModel::loadById($this->groupId);
@@ -169,13 +171,13 @@ class MemoModel extends Model
             }
             $this->setDtUpdate(time());
             $this->setDtCreate(time());
-            if($redis->setHashAll($this->getKey(),$this->getFieldArr())) {
-                $redis->setString(static::INCREMENT_COUNT_KEY,($this->id+1));
+            if($this->query->setHashAll($this->getKey(),$this->getFieldArr())) {
+                $this->query->setString(static::INCREMENT_COUNT_KEY,($this->id+1));
                 $this->adjustStatusList();
                 $userGroup->addMemo($this->getId());
             }
         } else {
-            if($redis->setHashAll($this->getKey(),$this->getFieldArr())) {
+            if($this->query->setHashAll($this->getKey(),$this->getFieldArr())) {
                 $this->adjustStatusList();  //调整状态列表
             }
         }
@@ -186,15 +188,13 @@ class MemoModel extends Model
      * 调整状态列表
      */
     public function adjustStatusList() {
-        $redis = self::getRedis();
-
         if($this->isNewRecord()) {      //新纪录
             $statusKey = self::getStatusKey($this->status);
-            $redis->setSet($statusKey,$this->getId());
+            $this->query->setSet($statusKey,$this->getId());
         } elseif($this->originField['status']!=$this->status) { //状态变化,移动状态列表数据
             $oldStatusKey = self::getStatusKey($this->originField['status']);
             $statusKey = self::getStatusKey($this->status);
-            $redis->moveSet($oldStatusKey,$statusKey,$this->getId());
+            $this->query->moveSet($oldStatusKey,$statusKey,$this->getId());
         }
     }
 

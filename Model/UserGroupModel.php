@@ -4,10 +4,12 @@
  */
 
 namespace Model;
+use core\Model\RedisModel\RedisModel;
 
 
-class UserGroupModel extends Model
+class UserGroupModel extends RedisModel
 {
+
     protected $key;
     protected $id;
     protected $name;
@@ -20,7 +22,7 @@ class UserGroupModel extends Model
     const TABLE_NAME = 'USER_GROUP';
 
     public static function createGroup($ownerId,$name) {
-        $redis = self::getRedis();
+        $redis = self::table();
         $arr = [
             'ownerId' => $ownerId,
             'name'    => $name,
@@ -98,7 +100,7 @@ class UserGroupModel extends Model
      * @return array
      */
     public function getMemberList($page=0,$size=10) {
-        return empty($this->memberList)?self::getRedis()->getAllSortSet($this->memberListId,$page,$size):$this->memberList;
+        return empty($this->memberList)?$this->query->getAllSortSet($this->memberListId,$page,$size):$this->memberList;
     }
 
     /**
@@ -107,7 +109,7 @@ class UserGroupModel extends Model
      * @return array
      */
     public function getMemoList($page=0,$size=10) {
-        return empty($this->memoList)?self::getRedis()->getAllSortSet($this->memoListId,$page,$size):$this->memoList;
+        return empty($this->memoList)?$this->query->getAllSortSet($this->memoListId,$page,$size):$this->memoList;
     }
 
     /**
@@ -163,7 +165,7 @@ class UserGroupModel extends Model
      * @return $this|UserGroupModel|null
      */
     public static function loadByKey($key) {
-        $redis = self::getRedis();
+        $redis = self::table();
 
         if($id = $redis->getSortSetScoreByKey(self::getTableName(),$key)) {
             $data = $redis->getHashAll($key);
@@ -178,7 +180,7 @@ class UserGroupModel extends Model
      * @return self[]
      */
     public static function loadAll() {
-        $keyList = self::getRedis()->getAllSortSet(self::getTableName());
+        $keyList = self::table()->getAllSortSet(self::getTableName());
         $arr = [];
         foreach($keyList as $key) {
             $arr[] = self::loadByKey($key);
@@ -211,7 +213,7 @@ class UserGroupModel extends Model
         $list = $this->getMemberList();
         if(!in_array($memberId,$list)) {
 //            array_push($this->memberList,$memberId);
-            $res = self::getRedis()->setSortSet($this->memberListId,$memberId,time());
+            $res = $this->query->setSortSet($this->memberListId,$memberId,time());
             return (0<$res);
         } else {
             return false;
@@ -227,7 +229,7 @@ class UserGroupModel extends Model
         $list = $this->getMemoList();
         if(!in_array($memoId,$list)) {
 //            array_push($this->memoList,$memoId);
-            $res = self::getRedis()->setSortSet($this->memoListId,$memoId,time());
+            $res = $this->query->setSortSet($this->memoListId,$memoId,time());
             return (0<$res);
         } else {
             return false;
@@ -237,7 +239,7 @@ class UserGroupModel extends Model
     public function save() {
         $arr = $this->getFieldArr();
         $redis = self::getRedis();
-        $redis->setHashAll($this->key,$arr);
+        $this->query->setHashAll($this->key,$arr);
     }
 
     public function getFieldArr() {

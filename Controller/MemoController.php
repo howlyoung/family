@@ -19,7 +19,7 @@ class MemoController extends BaseController
 
         $size = 1;
         $list = $group->getMemoModelList($p,$size);
-        return $this->render('index.html',[
+        return $this->render('index',[
             'list' => $list,
             'user' => $user,
             'p' => $p,

@@ -1,6 +1,6 @@
 <?php
 namespace Model;
-use core\QueryBuilder\QueryBuilder;
+use core\Model\DBModel\DBModel;
 
 /**
  * Created by PhpStorm.
@@ -8,22 +8,19 @@ use core\QueryBuilder\QueryBuilder;
  * Date: 2018/12/24
  * Time: 10:05
  */
-class UserModel extends Model
+class UserModel extends DBModel
 {
     /**
      * 属性字段
      */
-    public $id;
-    public $name;
-    public $password;
-    public $remark;
-    public $dt_create;
+//    public $id;
+//    public $name;
+//    public $password;
+//    public $remark;
+//    public $dt_create;
 
     const TABLE_NAME = 'user';
 
-    public function __construct() {
-
-    }
 
     /**
      * @param $pk
@@ -47,5 +44,15 @@ class UserModel extends Model
 
     public function getName() {
         return $this->name;
+    }
+
+    public function attributes() {
+        return [
+            'id' => '',
+            'name' => '',
+            'password' => '',
+            'remark' => '',
+            'dt_create' => '',
+        ];
     }
 }
