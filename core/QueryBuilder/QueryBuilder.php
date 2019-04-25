@@ -15,6 +15,7 @@ class QueryBuilder
     protected $group;   //分组
     protected $limit;   //limit限制
     protected $form;
+    protected $prefix;  //数据表前缀
 
     protected $db;      //数据库连接
 
@@ -44,6 +45,11 @@ class QueryBuilder
         $this->group = '';
         $this->limit = '';
         $this->form = '';
+        $this->prefix = $this->getPrefix();
+    }
+
+    protected function getPrefix() {
+        return '';
     }
 
     /**
@@ -286,8 +292,7 @@ class QueryBuilder
     }
 
     public function from($table) {
-        $prefix = \main::getConfig('db.db.prefix');
-        $this->form = ' FROM '.$prefix.$table;
+        $this->form = ' FROM '.$this->prefix.$table;
         return $this;
     }
 

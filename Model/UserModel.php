@@ -27,7 +27,7 @@ class UserModel extends DBModel
      * @return mixed
      */
     public static function loadByPk($pk) {
-        return self::table()->select(['*'])->from(self::getTableName())->where(['id','=',$pk])->get();
+        return self::table()->select(['*'])->from(self::getTableName())->where(['id'=>$pk])->get();
     }
 
     /**
@@ -35,11 +35,7 @@ class UserModel extends DBModel
      * @return mixed
      */
     public static function loadByField(Array $params) {
-        $where = [];
-        foreach($params as $k=>$v) {
-            $where[] = [$k,'=',$v];
-        }
-        return self::table()->select(['*'])->from(self::getTableName())->where($where)->get();
+        return self::table()->select(['*'])->from(self::getTableName())->where($params)->get();
     }
 
     public function getName() {

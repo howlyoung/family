@@ -11,15 +11,15 @@ class Model
 
     protected $query;      //查询器
 
-    protected $_isNewRecord; //是否新记录,false则不是新记录  优化!
-
     protected $_attributes; //字段数组
+
+    protected $_oldAttributes; //旧的字段值
 
     public function __construct() {
         $this->query = static::table();
     }
 
-    protected static function table() {
+    public static function table() {
         return null;
     }
 
@@ -49,16 +49,11 @@ class Model
     }
 
     /**
-     * 设置为
+     * 判断是否新记录，true 新记录
+     * @return bool
      */
-    public function setNewRecord() {
-        if($this->_isNewRecord != false) {
-            $this->_isNewRecord = false;
-        }
-    }
-
-    public function getIsNewRecord() {
-        return $this->_isNewRecord==false ? false:true;
+    public function isNewRecord() {
+        return empty($this->_oldAttributes);
     }
     /**
      * 写入错误消息
@@ -95,6 +90,7 @@ class Model
                 $this->_attributes[$k] = $v;
             }
         }
+        $this->_oldAttributes = $this->_attributes;
     }
 
 }
