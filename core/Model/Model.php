@@ -23,6 +23,10 @@ class Model
         return null;
     }
 
+    protected function getPrefix() {
+        return '';
+    }
+
     /**
      * 字段的键名
      * @return array

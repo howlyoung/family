@@ -11,16 +11,35 @@ use core\Model\Model;
 class DBModel extends Model
 {
 
-    protected static function table() {
+    protected function getPrefix() {
+        return \main::getConfig('db.db.prefix');
+    }
+
+    /**
+     * @return \core\QueryBuilder\ModelQueryBuilder object
+     */
+    public static function table() {
         return \main::getContainer()->get('core\QueryBuilder\ModelQueryBuilder',['modelClass' => get_called_class()]);
     }
 
     public function save() {
-        if($this->getIsNewRecord()) {
+        if($this->isNewRecord()) {
             //新记录，插入
-
+            $this->insertRecord();
         } else {
             //保存
         }
+    }
+
+    protected function insertRecord() {
+        $columns = [];
+        $values = [];
+        foreach($this->_attributes as $column=>$value) {
+            $columns[] = $column;
+            $values[] = '"'.$value.'"';
+        }
+
+        $sql = 'insert into '.$this->getPrefix().self::getTableName().' ('.implode(',',$columns).') VALUES('.implode(',',$values).')';
+        static::table()->execSql($sql);
     }
 }

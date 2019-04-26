@@ -73,6 +73,10 @@ class Db implements DbInterface
     }
 
 
+    public function update($sql,$params) {
+        return $this->exec($sql,$params);
+    }
+
     /**
      * 获取所有的查询结果
      * @param $sql

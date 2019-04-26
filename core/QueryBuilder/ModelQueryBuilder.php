@@ -37,6 +37,10 @@ class ModelQueryBuilder extends QueryBuilder
         return $this->selectBuild().$this->formBuild().$this->whereBuild($this->where,[]);
     }
 
+    public function execSql($sql,$params=[]) {
+        return $this->getDb()->update($sql,$params);
+    }
+
     protected function selectBuild() {
         if(empty($this->select)) {
             return  'select * ';
