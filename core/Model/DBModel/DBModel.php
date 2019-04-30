@@ -26,8 +26,12 @@ class DBModel extends Model
         if($this->isNewRecord()) {
             //新记录，插入
             $this->insertRecord();
+            $pk = $this->getPrimaryKey();
+            $this->_attributes[$pk] = \main::getDb()->getLastInsertId();
+            $this->_oldAttributes = $this->_attributes;
         } else {
             //保存
+            $this->updateRecord();
         }
     }
 
@@ -40,6 +44,24 @@ class DBModel extends Model
         }
 
         $sql = 'insert into '.$this->getPrefix().self::getTableName().' ('.implode(',',$columns).') VALUES('.implode(',',$values).')';
-        static::table()->execSql($sql);
+        static::table()->exec($sql);
+    }
+
+    protected function getPrimaryKey() {
+        return array_search('primary',$this->attributes());
+    }
+
+    protected function updateRecord() {
+        $update = [];
+        foreach($this->_attributes as $column=>$value) {
+            if($this->_oldAttributes[$column] != $value) {
+                //与旧数组值不同，表示需要更新
+                $update[] = $column.' = '.'"'.$value.'"';
+            }
+        }
+        $primaryKey = $this->getPrimaryKey();
+        $primaryValue = $this->_attributes[$primaryKey];
+        $sql = 'update '.$this->getPrefix().self::getTableName().' set '.implode(',',$update).' where '.$primaryKey.'='.$primaryValue;
+        static::table()->exec($sql);
     }
 }

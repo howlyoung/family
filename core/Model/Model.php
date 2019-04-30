@@ -3,20 +3,18 @@ namespace core\Model;
 /**
 ORM基类
  */
-class Model
+abstract class Model
 {
     const TABLE_NAME = '';
 
     protected $errorMsg;        //错误信息
-
-    protected $query;      //查询器
 
     protected $_attributes; //字段数组
 
     protected $_oldAttributes; //旧的字段值
 
     public function __construct() {
-        $this->query = static::table();
+
     }
 
     public static function table() {
@@ -75,6 +73,14 @@ class Model
         return empty($this->errorMsg)?'':implode(',',$this->errorMsg);
     }
 
+    protected function insertRecord() {
+
+    }
+
+    protected function updateRecord() {
+
+    }
+
     public function save() {
 
     }
@@ -88,6 +94,7 @@ class Model
     }
 
     public function fill($row) {
+        //公共方法，可能会被外部调用，优化!
         $attributes = $this->attributes();
         foreach($row as $k=>$v) {
             if(array_key_exists($k,$attributes)) {

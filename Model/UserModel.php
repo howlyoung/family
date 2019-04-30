@@ -44,7 +44,7 @@ class UserModel extends DBModel
 
     public function attributes() {
         return [
-            'id' => '',
+            'id' => 'primary',
             'name' => '',
             'password' => '',
             'remark' => '',

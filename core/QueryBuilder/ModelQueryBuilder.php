@@ -17,30 +17,43 @@ class ModelQueryBuilder extends QueryBuilder
 {
     protected $modelClass;
 
+    /**
+     * 获取数据库方法，用于执行语句
+     * @return object
+     * @throws \Exception
+     */
+    protected function getDb() {
+        return \main::getDb();
+    }
+
     public function __construct($modelClass) {
         parent::__construct();
         $this->modelClass = $modelClass;
     }
 
     public function get() {
-        $row = $this->getDb()->queryRow($this->getSql(),$this->params);
+        $row = $this->getDb()->queryRow($this->getCommand(),$this->params);
         $models =  $this->createModel([$row]);
         return reset($models);
     }
 
     public function getAll() {
-        $rows = $this->getDb()->queryAll($this->getSql(),$this->params);
+        $rows = $this->getDb()->queryAll($this->getCommand(),$this->params);
         return $this->createModel($rows);
     }
 
-    public function getSql() {
+    public function getCommand() {
         return $this->selectBuild().$this->formBuild().$this->whereBuild($this->where,[]);
     }
 
-    public function execSql($sql,$params=[]) {
-        return $this->getDb()->update($sql,$params);
+    public function exec($command,$params=[]) {
+        return $this->getDb()->exec($command,$params);
     }
 
+    /**
+     * 构建select语句
+     * @return string
+     */
     protected function selectBuild() {
         if(empty($this->select)) {
             return  'select * ';
@@ -53,6 +66,10 @@ class ModelQueryBuilder extends QueryBuilder
         }
     }
 
+    /**
+     * 构建form语句
+     * @return string
+     */
     protected function formBuild() {
         if(empty($this->form)) {
             return ' from '.$this->getPrefix().call_user_func([$this->modelClass,'getTableName']);
@@ -61,7 +78,11 @@ class ModelQueryBuilder extends QueryBuilder
         }
     }
 
-
+    /**
+     * 创建MOdel对象
+     * @param $rows
+     * @return array
+     */
     protected function createModel($rows) {
         $models = [];
         foreach($rows as $row) {
@@ -72,6 +93,10 @@ class ModelQueryBuilder extends QueryBuilder
         return $models;
     }
 
+    /**
+     * 获取数据库前缀
+     * @return mixed
+     */
     protected function getPrefix() {
         return \main::getConfig('db.db.prefix');
     }
@@ -94,28 +119,36 @@ class ModelQueryBuilder extends QueryBuilder
     }
 
     public function andWhere($condition,$params=null) {
-        $this->where = [$this->where,$condition,'and'];
-        $this->addParams($params);
-        return $this;
+        if(null == $this->where) {
+            return $this->where($condition,$params);
+        } else {
+            $this->where = [$this->where,$condition,'and'];
+            $this->addParams($params);
+            return $this;
+        }
     }
 
     public function orWhere($condition,$params=null) {
-        $this->where = [$this->where,$condition,'or'];
-        $this->addParams($params);
-        return $this;
+        if(null == $this->where) {
+            return $this->where($condition,$params);
+        } else {
+            $this->where = [$this->where,$condition,'or'];
+            $this->addParams($params);
+            return $this;
+        }
     }
 
-    public function inWhere($condition,$params=null) {
-        $this->where = [$this->where,$condition,'in'];
-        $this->addParams($params);
-        return $this;
-    }
-
-    public function betweenWhere($condition,$params=null) {
-        $this->where = [$this->where,$condition,'between'];
-        $this->addParams($params);
-        return $this;
-    }
+//    public function inWhere($condition,$params=null) {
+//        $this->where = [$this->where,$condition,'in'];
+//        $this->addParams($params);
+//        return $this;
+//    }
+//
+//    public function betweenWhere($condition,$params=null) {
+//        $this->where = [$this->where,$condition,'between'];
+//        $this->addParams($params);
+//        return $this;
+//    }
 
     public function addParams($params) {
         if(!empty($params)) {
@@ -128,8 +161,45 @@ class ModelQueryBuilder extends QueryBuilder
         return $this->selectBuild().$this->formBuild().$this->whereBuild($this->where,[]);
     }
 
+    /**
+     * 获取字段占位符
+     * @param $field
+     * @return string
+     */
     protected function getPlaceholder($field) {
         return ':'.$field;
+    }
+
+    /**
+     * 根据操作符调用对应的构建方法
+     * @param $condition
+     * @return string
+     * @throws \Exception
+     */
+    protected function build($condition)
+    {
+        if (is_string($condition)) {
+            return $condition;
+        } elseif (is_array($condition)) {
+            if(isset($condition[0])) {
+                //操作数格式
+                $opMethod = strtolower($condition[0]).'Build';
+                if(method_exists($this,$opMethod)) {
+                    return $this->$opMethod($condition);
+                } else {
+                    throw new \Exception('操作方法不正确');
+                }
+            } else {
+                //哈希格式
+                $tmp = [];
+                foreach($condition as $k=>$v) {
+                    $tmp[] = $k.'='.(is_numeric($v)?$v:('"'.$v.'"'));
+                }
+                return implode(' and ',$tmp);
+            }
+        } else {
+            throw new \Exception('条件类型不符合');
+        }
     }
 
     /**
@@ -155,40 +225,36 @@ class ModelQueryBuilder extends QueryBuilder
         }
     }
 
-    protected function build($condition)
-    {
-        if (is_string($condition)) {
-            return $condition;
-        } elseif (is_array($condition)) {
-            if(isset($condition[0])) {
-                //操作数格式
-                $opMethod = strtolower($condition[0]).'Build';
-                if(method_exists($this,$opMethod)) {
-                    return $this->$opMethod($condition);
-                } else {
-                    throw new \Exception('操作数不正确');
-                }
-            } else {
-                //哈希格式
-                $tmp = [];
-                foreach($condition as $k=>$v) {
-                    $tmp[] = $k.'='.$v;
-                }
-                return implode(' and ',$tmp);
-            }
-        }
-    }
 
+    /**
+     * @param $condition
+     * @return string
+     * @throws \Exception
+     */
     protected function andBuild($condition) {
         $op = strtolower($condition[0]);
         return '('.$this->build($condition[1]).' '.$op.' '.$this->build($condition[2]).')';
     }
 
+    /**
+     * @param $condition
+     * @return string
+     * @throws \Exception
+     */
     protected function inBuild($condition) {
         $op = strtolower($condition[0]);
-        return '('.$this->build($condition[1]).' '.$op.' '.$this->build($condition[2]).')';
+        return '('.$condition[1].' '.$op.' ('.implode(',',$condition[2]).'))';
     }
 
+    protected function betweenBuild($condition) {
+        return '('.$condition[1].' > '.$condition[2][0].' and '.$condition[1].' < '.$condition[2][1];
+    }
+
+    /**
+     * @param $condition
+     * @return string
+     * @throws \Exception
+     */
     protected function orBuild($condition) {
         $op = strtolower($condition[0]);
         return '('.$this->build($condition[1]).' '.$op.' '.$this->build($condition[2]).')';

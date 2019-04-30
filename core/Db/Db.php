@@ -50,32 +50,33 @@ class Db implements DbInterface
     }
 
     /**
+     * 获取最后插入的主键id
+     * @return mixed
+     */
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
+    }
+
+    /**
      * 执行查询
      * @param $sql
      * @param $params
      * @return null|\PDOStatement
+     * @throws \Exception
      */
-    protected function exec($sql,$params) {
-        try {
-            /** @var \PDOStatement $sth */
-            $sth = $this->conn->prepare($sql);
-            foreach($params as $k=>$v) {
-                $type = isset($this->mapPdoType[gettype($v)])?$this->mapPdoType[gettype($v)]:null;
-                if(!$type) {
-                    throw new \Exception('不支持的参数类型');
-                }
-                $sth->bindValue($k,$v,$type);
+    public function exec($sql,$params) {
+        /** @var \PDOStatement $sth */
+        $sth = $this->conn->prepare($sql);
+        foreach($params as $k=>$v) {
+            $type = isset($this->mapPdoType[gettype($v)])?$this->mapPdoType[gettype($v)]:null;
+            if(!$type) {
+                throw new \Exception('不支持的参数类型');
             }
-            return $sth->execute()?$sth:null;
-        } catch(\Exception $e) {
-            echo $e->getMessage();
+            $sth->bindValue($k,$v,$type);
         }
+        return $sth->execute()?$sth:null;
     }
 
-
-    public function update($sql,$params) {
-        return $this->exec($sql,$params);
-    }
 
     /**
      * 获取所有的查询结果
