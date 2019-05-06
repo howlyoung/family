@@ -10,6 +10,13 @@ use core\Model\Model;
  */
 class DBModel extends Model
 {
+    protected $builder; //查询器对象
+
+    public function __construct() {
+        parent::__construct();
+        $this->builder = static::table();
+    }
+
 
     protected function getPrefix() {
         return \main::getConfig('db.db.prefix');
@@ -44,13 +51,28 @@ class DBModel extends Model
         }
 
         $sql = 'insert into '.$this->getPrefix().self::getTableName().' ('.implode(',',$columns).') VALUES('.implode(',',$values).')';
-        static::table()->exec($sql);
+        $this->builder->exec($sql);
     }
 
+    /**
+     * 获取错误信息
+     * @return mixed
+     */
+    public function getErrMsg() {
+        return $this->builder->getErrMsg();
+    }
+
+    /**
+     * 获取主键
+     * @return mixed
+     */
     protected function getPrimaryKey() {
         return array_search('primary',$this->attributes());
     }
 
+    /**
+     * 更新记录
+     */
     protected function updateRecord() {
         $update = [];
         foreach($this->_attributes as $column=>$value) {
@@ -62,6 +84,6 @@ class DBModel extends Model
         $primaryKey = $this->getPrimaryKey();
         $primaryValue = $this->_attributes[$primaryKey];
         $sql = 'update '.$this->getPrefix().self::getTableName().' set '.implode(',',$update).' where '.$primaryKey.'='.$primaryValue;
-        static::table()->exec($sql);
+        $this->builder->exec($sql);
     }
 }

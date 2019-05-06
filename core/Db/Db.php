@@ -12,6 +12,8 @@ class Db implements DbInterface
     protected $password;    //连接密码
     protected $type;    //数据库类型
 
+
+    protected $errMsg;      //执行语句后的错误信息,数组
     protected $conn;        //链接
 
 
@@ -58,7 +60,7 @@ class Db implements DbInterface
     }
 
     /**
-     * 执行查询
+     * 执行查询 考虑优化! 是否需要开放调用
      * @param $sql
      * @param $params
      * @return null|\PDOStatement
@@ -74,9 +76,19 @@ class Db implements DbInterface
             }
             $sth->bindValue($k,$v,$type);
         }
-        return $sth->execute()?$sth:null;
+
+        $res =  $sth->execute()?$sth:null;
+        $this->errMsg = $sth->errorInfo();
+        return $res;
     }
 
+    /**
+     * 获取查询执行的错误信息
+     * @return array
+     */
+    public function getErrMsgArr() {
+        return $this->errMsg;
+    }
 
     /**
      * 获取所有的查询结果

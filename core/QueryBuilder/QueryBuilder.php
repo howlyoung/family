@@ -17,6 +17,8 @@ abstract class QueryBuilder
     protected $form;
     protected $prefix;  //数据表前缀
 
+    protected $errMsg;  //错误信息,最近一次查询的错误信息
+
     protected $db;      //数据库连接
 
     public function test() {
@@ -52,6 +54,20 @@ abstract class QueryBuilder
         return '';
     }
 
+    /**
+     * 设置错误信息
+     */
+    protected function setErrMsg() {
+
+    }
+
+    /**
+     * 获得错误信息
+     * @return array
+     */
+    public function getErrMsg() {
+        return $this->errMsg;
+    }
 
     /**
      * @param $order

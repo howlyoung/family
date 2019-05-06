@@ -48,6 +48,7 @@ class UserModel extends DBModel
             'name' => '',
             'password' => '',
             'remark' => '',
+//            'tt' => '',
             'dt_create' => '',
         ];
     }

@@ -31,23 +31,53 @@ class ModelQueryBuilder extends QueryBuilder
         $this->modelClass = $modelClass;
     }
 
+    /**
+     * 查询单个值
+     * @return mixed
+     */
     public function get() {
         $row = $this->getDb()->queryRow($this->getCommand(),$this->params);
         $models =  $this->createModel([$row]);
         return reset($models);
     }
 
+    /**
+     * 查询多个值，返回数组
+     * @return array
+     */
     public function getAll() {
         $rows = $this->getDb()->queryAll($this->getCommand(),$this->params);
         return $this->createModel($rows);
     }
 
+    /**
+     * 获取sql命令
+     * @return string
+     */
     public function getCommand() {
         return $this->selectBuild().$this->formBuild().$this->whereBuild($this->where,[]);
     }
 
+    /**
+     * 执行语句
+     * @param $command
+     * @param array $params
+     * @return mixed
+     */
     public function exec($command,$params=[]) {
-        return $this->getDb()->exec($command,$params);
+        $res =  $this->getDb()->exec($command,$params);
+        $this->setErrMsg();
+        return $res;
+    }
+
+    /**
+     * 获取错误信息
+     */
+    protected function setErrMsg() {
+        $msg = $this->getDb()->getErrMsgArr();
+        if(!empty($msg)) {
+            $this->errMsg = $msg[2];
+        }
     }
 
     /**
@@ -138,17 +168,6 @@ class ModelQueryBuilder extends QueryBuilder
         }
     }
 
-//    public function inWhere($condition,$params=null) {
-//        $this->where = [$this->where,$condition,'in'];
-//        $this->addParams($params);
-//        return $this;
-//    }
-//
-//    public function betweenWhere($condition,$params=null) {
-//        $this->where = [$this->where,$condition,'between'];
-//        $this->addParams($params);
-//        return $this;
-//    }
 
     public function addParams($params) {
         if(!empty($params)) {
@@ -156,7 +175,10 @@ class ModelQueryBuilder extends QueryBuilder
         }
     }
 
-
+    /**
+     * 测试方法
+     * @return string
+     */
     public function tb() {
         return $this->selectBuild().$this->formBuild().$this->whereBuild($this->where,[]);
     }
@@ -233,6 +255,9 @@ class ModelQueryBuilder extends QueryBuilder
      */
     protected function andBuild($condition) {
         $op = strtolower($condition[0]);
+        if(!is_array($condition)||(count($condition)!=3)) {
+            throw new \Exception('and方法参数不正确!');
+        }
         return '('.$this->build($condition[1]).' '.$op.' '.$this->build($condition[2]).')';
     }
 
@@ -243,10 +268,16 @@ class ModelQueryBuilder extends QueryBuilder
      */
     protected function inBuild($condition) {
         $op = strtolower($condition[0]);
+        if(!is_array($condition)||(count($condition)!=3)) {
+            throw new \Exception('in方法参数不正确!');
+        }
         return '('.$condition[1].' '.$op.' ('.implode(',',$condition[2]).'))';
     }
 
     protected function betweenBuild($condition) {
+        if(!is_array($condition)||(count($condition)!=3)) {
+            throw new \Exception('between方法参数不正确!');
+        }
         return '('.$condition[1].' > '.$condition[2][0].' and '.$condition[1].' < '.$condition[2][1];
     }
 
@@ -257,6 +288,9 @@ class ModelQueryBuilder extends QueryBuilder
      */
     protected function orBuild($condition) {
         $op = strtolower($condition[0]);
+        if(!is_array($condition)||(count($condition)!=3)) {
+            throw new \Exception('or方法参数不正确!');
+        }
         return '('.$this->build($condition[1]).' '.$op.' '.$this->build($condition[2]).')';
     }
 }

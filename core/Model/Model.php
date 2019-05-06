@@ -7,8 +7,6 @@ abstract class Model
 {
     const TABLE_NAME = '';
 
-    protected $errorMsg;        //错误信息
-
     protected $_attributes; //字段数组
 
     protected $_oldAttributes; //旧的字段值
@@ -56,21 +54,6 @@ abstract class Model
      */
     public function isNewRecord() {
         return empty($this->_oldAttributes);
-    }
-    /**
-     * 写入错误消息
-     * @param $msg
-     */
-    public function setErrMsg($msg) {
-        $this->errorMsg[] = $msg;
-    }
-
-    /**
-     * 获取错误消息
-     * @return array|string
-     */
-    public function getErrMsg() {
-        return empty($this->errorMsg)?'':implode(',',$this->errorMsg);
     }
 
     protected function insertRecord() {
