@@ -56,13 +56,6 @@ abstract class Model
         return empty($this->_oldAttributes);
     }
 
-    protected function insertRecord() {
-
-    }
-
-    protected function updateRecord() {
-
-    }
 
     public function save() {
 

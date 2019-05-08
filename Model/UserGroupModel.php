@@ -100,7 +100,7 @@ class UserGroupModel extends RedisModel
      * @return array
      */
     public function getMemberList($page=0,$size=10) {
-        return empty($this->memberList)?$this->query->getAllSortSet($this->memberListId,$page,$size):$this->memberList;
+        return empty($this->memberList)?$this->builder->getAllSortSet($this->memberListId,$page,$size):$this->memberList;
     }
 
     /**
@@ -109,7 +109,7 @@ class UserGroupModel extends RedisModel
      * @return array
      */
     public function getMemoList($page=0,$size=10) {
-        return empty($this->memoList)?$this->query->getAllSortSet($this->memoListId,$page,$size):$this->memoList;
+        return empty($this->memoList)?$this->builder->getAllSortSet($this->memoListId,$page,$size):$this->memoList;
     }
 
     /**
@@ -213,7 +213,7 @@ class UserGroupModel extends RedisModel
         $list = $this->getMemberList();
         if(!in_array($memberId,$list)) {
 //            array_push($this->memberList,$memberId);
-            $res = $this->query->setSortSet($this->memberListId,$memberId,time());
+            $res = $this->builder->setSortSet($this->memberListId,$memberId,time());
             return (0<$res);
         } else {
             return false;
@@ -229,7 +229,7 @@ class UserGroupModel extends RedisModel
         $list = $this->getMemoList();
         if(!in_array($memoId,$list)) {
 //            array_push($this->memoList,$memoId);
-            $res = $this->query->setSortSet($this->memoListId,$memoId,time());
+            $res = $this->builder->setSortSet($this->memoListId,$memoId,time());
             return (0<$res);
         } else {
             return false;
@@ -238,8 +238,7 @@ class UserGroupModel extends RedisModel
 
     public function save() {
         $arr = $this->getFieldArr();
-        $redis = self::getRedis();
-        $this->query->setHashAll($this->key,$arr);
+        $this->builder->setHashAll($this->key,$arr);
     }
 
     public function getFieldArr() {

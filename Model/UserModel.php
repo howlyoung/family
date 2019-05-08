@@ -24,7 +24,7 @@ class UserModel extends DBModel
 
     /**
      * @param $pk
-     * @return mixed
+     * @return self
      */
     public static function loadByPk($pk) {
         return self::table()->select(['*'])->from(self::getTableName())->where(['id'=>$pk])->get();

@@ -16,7 +16,7 @@
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">{{ user.getName }}</a>
+            <a class="navbar-brand" href="#"><?php echo $user->getName(); ?></a>
         </div>
         <div class="nav navbar-nav navbar-right">
                 <a class="navbar-brand" href="#">Operate</a>
@@ -32,24 +32,24 @@
             <p>sdfsd</p>
         </div>
         <div class="col-lg-7">
-            {% for value in list %}
+            <?php foreach($list as $value):?>
             <div class="list-group">
                 <a href="#" class="list-group-item">
-                    <h4 class="list-group-item-heading">{{ value.getTitle }}</h4>
+                    <h4 class="list-group-item-heading"><?php echo $value->getTitle();?></h4>
                     <p class="list-group-item-text">
-                        {{ value.getContent}}
+                        <?php echo $value->getContent();?>
                     </p>
                     <div class="row">
                         <div class="col-lg-3">
-                            <p class="list-group-item-text"><span class="label label-info">{{ value.getStatusName }}</span></p>
+                            <p class="list-group-item-text"><span class="label label-info"><?php echo $value->getStatusName();?></span></p>
                         </div>
                         <div class="col-lg-9">
-                            <p class="list-group-item-text text-right">{{ value.getDtCreate }}</p>
+                            <p class="list-group-item-text text-right"><?php echo $value->getDtCreate();?></p>
                         </div>
                     </div>
                 </a>
             </div>
-            {% endfor %}
+            <?php endforeach;?>
             <div id="pagination">
 
             </div>
@@ -93,7 +93,7 @@
 //    ul.append('<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
 //    pagination.append(ul);
 
-    var page = new PagePlug('?r=memo/index&p=',8,{{ size}});
-    page.normal(pagination,{{ p }});
+    var page = new PagePlug('?r=memo/index&p=',8,<?php echo $size;?>);
+    page.normal(pagination,<?php echo $p;?>);
 </script>
 </html>

@@ -42,6 +42,26 @@ class DBModel extends Model
         }
     }
 
+    public function update() {
+        if(!$this->isNewRecord()) {
+            $this->updateRecord();
+        }
+    }
+
+    public function delete() {
+        if(!$this->isNewRecord()) {
+            $this->deleteRecord();
+        }
+    }
+
+    protected function deleteRecord() {
+        $primaryKey = $this->getPrimaryKey();
+        $primaryValue = $this->_attributes[$primaryKey];
+
+        $sql = 'delete from '.$this->getPrefix().self::getTableName().' where '.$primaryKey.'='.$primaryValue;
+        $this->builder->exec($sql);
+    }
+
     protected function insertRecord() {
         $columns = [];
         $values = [];
@@ -51,6 +71,23 @@ class DBModel extends Model
         }
 
         $sql = 'insert into '.$this->getPrefix().self::getTableName().' ('.implode(',',$columns).') VALUES('.implode(',',$values).')';
+        $this->builder->exec($sql);
+    }
+
+    /**
+     * 更新记录
+     */
+    protected function updateRecord() {
+        $update = [];
+        foreach($this->_attributes as $column=>$value) {
+            if($this->_oldAttributes[$column] != $value) {
+                //与旧数组值不同，表示需要更新
+                $update[] = $column.' = '.'"'.$value.'"';
+            }
+        }
+        $primaryKey = $this->getPrimaryKey();
+        $primaryValue = $this->_attributes[$primaryKey];
+        $sql = 'update '.$this->getPrefix().self::getTableName().' set '.implode(',',$update).' where '.$primaryKey.'='.$primaryValue;
         $this->builder->exec($sql);
     }
 
@@ -70,20 +107,5 @@ class DBModel extends Model
         return array_search('primary',$this->attributes());
     }
 
-    /**
-     * 更新记录
-     */
-    protected function updateRecord() {
-        $update = [];
-        foreach($this->_attributes as $column=>$value) {
-            if($this->_oldAttributes[$column] != $value) {
-                //与旧数组值不同，表示需要更新
-                $update[] = $column.' = '.'"'.$value.'"';
-            }
-        }
-        $primaryKey = $this->getPrimaryKey();
-        $primaryValue = $this->_attributes[$primaryKey];
-        $sql = 'update '.$this->getPrefix().self::getTableName().' set '.implode(',',$update).' where '.$primaryKey.'='.$primaryValue;
-        $this->builder->exec($sql);
-    }
+
 }

@@ -10,7 +10,14 @@ use core\Model\Model;
  */
 class RedisModel extends Model
 {
-    protected static function table() {
+    protected $builder; //查询器对象
+
+    public function __construct() {
+        parent::__construct();
+        $this->builder = static::table();
+    }
+
+    public static function table() {
         return \main::getDb('redis');
     }
 }
